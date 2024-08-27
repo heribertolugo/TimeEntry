@@ -1,0 +1,17 @@
+﻿To publish for Windows you must run the following command in Package Manager Console:
+
+dotnet publish <Local path to .csproj> -f net8.0-windows10.0.19041.0 -p:PackageCertificateThumbprint=F35BD554D313A67ED5B6D698C7A4C409CB5825C9 -p:AppxPackageSigningEnabled=true -p:AppxPackageSigningTimestampServerUrl="http://timestamp.digicert.com" -p:AppxPackageSigningTimestampDigestAlgorithm=SHA512 -p:AppxAutoIncrementPackageRevision=true -p:AppInstallerUri="\\Applications\Timeclock\InstallerPackage" -p:HoursBetweenUpdateChecks=1 --self-contained
+
+Before running the command you must specify the path to the project file for the MAUI project file within your solution.
+You must also specify the Application Certificate Thumbprint to be the production version.
+The command creates a MSIX installer which contains the .NET version for the application (currently .NET Core 8).
+The reason for the command is that there is a bug within MAUI/MSBuild which fails when trying to publish a MAUI app 
+which has other projects in the solution. After Microsoft issues a fix, you should be able to publish within Visual Studio.
+More information concerning publish can be found at:
+https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#publishrelease
+https://learn.microsoft.com/en-us/dotnet/maui/windows/deployment/publish-cli?view=net-maui-8.0
+https://learn.microsoft.com/en-us/dotnet/maui/windows/deployment/publish-visual-studio-folder?view=net-maui-8.0
+Package Versioning:
+https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/package-version-numbering?pivots=store-installer-msix
+If using Microsoft app store:
+https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/create-app-submission?pivots=store-installer-msix

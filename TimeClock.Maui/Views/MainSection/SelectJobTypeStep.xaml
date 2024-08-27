@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.MainSection.SelectJobTypeStep"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels.MainSection"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             BackgroundColor="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}"
+             NavigationPage.HasBackButton="False"
+             x:DataType="viewmodels:SelectJobTypeStepViewModel">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+    <ContentPage.BindingContext>
+        <viewmodels:SelectJobTypeStepViewModel x:Name="ViewModel" />
+    </ContentPage.BindingContext>
+
+    <Grid x:DataType="viewmodels:SelectJobTypeStepViewModel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".20"/>
+        <!-- Top Bar -->
+        <FlexLayout Grid.Column="0" Grid.Row="0" ZIndex="2" HorizontalOptions="Fill" Wrap="Wrap" JustifyContent="SpaceBetween">
+            <HorizontalStackLayout HorizontalOptions="Start" VerticalOptions="End" Margin="10">
+                <!-- LEFT TEXT -->
+                <SearchBar HorizontalOptions="Center" VerticalOptions="Center" Placeholder="Search Job Types" Style="{StaticResource SemiTransparent}" IsVisible="False" />
+            </HorizontalStackLayout>
+            <!-- MIDDLE TEXT -->
+            <Label Grid.Column="0" Grid.Row="0" Text="\{Binding ScreenTitle}" Style="{StaticResource h2}" 
+                   VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,50,10" IsVisible="False" />
+            <!-- MAIN BUTTONS -->
+            <HorizontalStackLayout>
+                <Button Grid.Column="1" Grid.Row="0" WidthRequest="150" VerticalOptions="End" HorizontalOptions="End" Margin="0,0,20,10"
+                    Style="{StaticResource DangerButton}" Text="Cancel" Command="{Binding CloseCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Xmark}"/>
+                    </Button.ImageSource>
+                </Button>
+                <Button Grid.Column="1" Grid.Row="0" WidthRequest="150" VerticalOptions="End" HorizontalOptions="End" Margin="0,0,50,10"
+                    Text="Accept" Command="{Binding AcceptCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Check}"/>
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+        </FlexLayout>
+
+        <!-- Items Grid -->
+        <RefreshView Grid.Column="0" Grid.Row="1" Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}" ZIndex="2">
+            <CollectionView BackgroundColor="Transparent" ItemSizingStrategy="MeasureAllItems"
+                            ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" RemainingItemsThreshold="1"
+                            RemainingItemsThresholdReachedCommand="{Binding DelayLoadMoreCommand}" SelectionMode="Single">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="{OnIdiom Phone=1, Watch=1, Default=3}" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="12" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label HorizontalOptions="Center" Text="No job types found"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:SelectJobTypeStepViewModelItem">
+                        <Border StrokeShape="RoundRectangle 5,5,5,5" x:Name="ItemContainer" Stroke="{StaticResource SystemOrange}">
+                            <Grid Padding="30,10" Margin="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="3*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalOptions="Center" Text="{Binding JobTypeDescription}" Style="{StaticResource h3}" />
+                                <Label Grid.Column="0" Grid.Row="1" VerticalOptions="Start" HorizontalOptions="Start" HorizontalTextAlignment="Start" Text="{Binding JobTypeCode}" Style="{StaticResource h3}" />
+                                <Image Grid.Column="1" Grid.Row="1" Aspect="Center" VerticalOptions="Center" HorizontalOptions="Center">
+                                    <Image.Source>
+                                        <FontImageSource FontFamily="{Binding IconNameSpace}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" 
+                                            Size="30" Glyph="{Binding IconName}"/>
+                                    </Image.Source>
+                                </Image>
+                                <Label Grid.Column="2" Grid.Row="1" VerticalOptions="Center" HorizontalOptions="End" Text="{Binding JobStepCode}" Style="{StaticResource h3}" />
+                            </Grid>
+
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True" TargetType="Border">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                    <Binding Path="Id"/>
+                                                    <Binding Path="SelectedItem.Id" Source="{x:RelativeSource AncestorType={x:Type viewmodels:SelectJobTypeStepViewModel}}"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="BackgroundColor" Value="{StaticResource SystemOrange}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+</shared:BaseContentPage>

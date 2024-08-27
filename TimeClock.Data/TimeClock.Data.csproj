@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+		<Platforms>AnyCPU;x86;x64</Platforms>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="JDE\**" />
+    <EmbeddedResource Remove="JDE\**" />
+    <None Remove="JDE\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ModelContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="App.config" />
+    <None Remove="App.dev.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App.dev.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.11.1" />
+    <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="8.1.5" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="8.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.2.0" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="8.21.121" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.130" />
+    <PackageReference Include="PluralizeService.Core" Version="1.2.21147.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
+    <PackageReference Include="System.Security.Permissions" Version="8.0.0" />
+  </ItemGroup>
+
+	<Target Name="SetAppsettingsJson" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' != 'Release'">
+		<ItemGroup>
+			<MySourceFiles Include="$(MSBuildProjectDirectory)\App.config" />
+		</ItemGroup>
+		<PropertyGroup>
+			<outputpath>$(MSBuildProjectDirectory)\App.dev.config</outputpath>
+		</PropertyGroup>
+		<Copy SourceFiles="@(MySourceFiles)" DestinationFiles="$(outputpath)" Condition="!Exists('$(outputpath)')" />
+		<Message Text="******************************************************************" Importance="High" />
+		<Message Text="CREATED $(outputpath) " Importance="High" />
+		<Message Text="******************************************************************" Importance="High" />
+	</Target>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+</Project>

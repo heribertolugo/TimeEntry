@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.HistorySection.PunchHistory"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.HistorySection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             x:DataType="local:PunchHistoryViewModel"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             x:Name="thes"
+             VerticalOptions="Fill" HorizontalOptions="Fill">
+
+    <Grid Padding="0" Margin="0" ColumnSpacing="0" RowSpacing="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!-- Add punch button -->
+        <HorizontalStackLayout Grid.Row="0" Grid.Column="0" HorizontalOptions="End" Margin="0,0,20,0" ZIndex="1">
+            <Button Text="Add missing punch" VerticalOptions="Center" HorizontalOptions="End" Margin="0" FontSize="16" 
+                        MinimumHeightRequest="-1" MinimumWidthRequest="-1" Padding="10,5" FontAttributes="Bold" 
+                        Command="{Binding AddPunchCommand}" CommandParameter="{Binding .}" IsVisible="{Binding IsEditable}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" Glyph="{StaticResource Plus}" Size="18"/>
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+
+        <!-- Punches -->
+        <RefreshView Grid.Row="1" Grid.Column="0" VerticalOptions="Fill" HorizontalOptions="Fill" 
+                     Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}" ZIndex="1">
+            <CollectionView BackgroundColor="Transparent" ItemSizingStrategy="MeasureAllItems" VerticalOptions="Fill"
+                            ItemsSource="{Binding PunchEntries}" SelectionMode="None" 
+                            RemainingItemsThreshold="1" RemainingItemsThresholdReachedCommand="{Binding DelayLoadMoreCommand}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="12" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label HorizontalOptions="Center" Text="No punches found"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.Header>
+                    <Label/>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:PunchEntryDto">
+                        <Border Padding="{Binding BorderPadding, Source={x:Reference thes}}" Margin="0" StrokeShape="RoundRectangle 10,10,10,10">
+                            <ContentView Padding="0">
+                                <Grid ColumnSpacing="{Binding GridColumnSpacing, Source={x:Reference thes}}" Margin="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <!-- Time -->
+                                        <ColumnDefinition Width="Auto"/>
+                                        <!-- Location -->
+                                        <ColumnDefinition Width="4*"/>
+                                        <!-- Punch In/Out -->
+                                        <ColumnDefinition Width="2*"/>
+                                        <!-- Punch Type -->
+                                        <ColumnDefinition Width="2*"/>
+                                        <!-- Punch Action -->
+                                        <ColumnDefinition Width="2*"/>
+                                        <!-- Edit Button -->
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- Time -->
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding StableEffectiveDateTime, StringFormat='{0:t}'}" Style="{StaticResource h4}"/>
+                                    <!-- Location -->
+                                    <StackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="Center">
+                                        <Label Style="{StaticResource h4}" HorizontalOptions="Center">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0}">
+                                                    <Binding Path="Device.DepartmentsToLocations.Location.Name" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </StackLayout>
+                                    <!-- Punch In/Out -->
+                                    <Label Grid.Row="0" Grid.Column="2" IsVisible="True" HorizontalOptions="FillAndExpand" 
+                                        Text="{Binding StablePunchStatus, Converter={converters:EnumToStringConverter}}" Style="{StaticResource h4}"/>
+                                    <!-- Punch Type -->
+                                    <Label Grid.Row="0" Grid.Column="3" IsVisible="True" HorizontalOptions="FillAndExpand" 
+                                       Text="{Binding PunchType, Converter={converters:EnumToStringConverter}}" Style="{StaticResource h4}"/>
+                                    <!-- Punch Action -->
+                                    <Label Grid.Row="0" Grid.Column="4" IsVisible="True" HorizontalOptions="FillAndExpand" 
+                                       Text="{Binding StableAction, Converter={converters:EnumToStringConverter}}" Style="{StaticResource h4}"/>
+                                    <!-- Edit Button -->
+                                    <Button Grid.Row="0" Grid.Column="5" Text="Edit" VerticalOptions="Center" HorizontalOptions="End" Margin="0" FontSize="16" 
+                                                MinimumHeightRequest="-1" MinimumWidthRequest="-1" Padding="10,5" FontAttributes="Bold"
+                                                Command="{Binding Path=EditPunchCommand, Source={x:RelativeSource AncestorType={x:Type local:PunchHistoryViewModel}}}"
+                                                CommandParameter="{Binding Id}" IsVisible="{Binding Path=IsEditable, Source={x:RelativeSource AncestorType={x:Type local:PunchHistoryViewModel}}}">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" Glyph="{StaticResource PenToSquare}" Size="14"/>
+                                        </Button.ImageSource>
+                                    </Button>
+                                </Grid>
+                            </ContentView>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <Label/>
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+
+        <HorizontalStackLayout Grid.Row="2" Grid.Column="0" ZIndex="1">
+            <!-- SUM of Hours -->
+            <Label Style="{StaticResource h3}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="Total time: " Style="{StaticResource h3span}"/>
+                        <Span Text="{Binding TotalForPunches.TotalHours, Mode=OneWay, StringFormat='{0:F2} hours'}" Style="{StaticResource h3span}"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </HorizontalStackLayout>
+
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+</shared:BaseContentView>

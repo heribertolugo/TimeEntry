@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Controls.TabControl"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:local="clr-namespace:TimeClock.Maui.Controls"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             x:Name="self"
+             x:DataType="local:TabControl">
+    <Grid Padding="0" Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <HorizontalStackLayout RadioButtonGroup.GroupName="MenuCategories" x:Name="tabControlLayout" Grid.Row="0" Grid.Column="0"
+                               BindableLayout.ItemsSource="{Binding Tabs}">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="local:TabControlItem">
+                    <RadioButton Content="{Binding Title}" CheckedChanged="RadioButton_CheckedChanged" IsChecked="False" Margin="0,0,20,0" x:Name="Radio">
+                        <RadioButton.ControlTemplate>
+                            <ControlTemplate>
+                                <Grid RowDefinitions="Auto,4">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroupList>
+                                            <VisualStateGroup x:Name="CheckedStates">
+                                                <VisualState x:Name="Checked">
+                                                    <VisualState.Setters>
+                                                        <Setter TargetName="TextLabel" Property="Label.TextColor" Value="{StaticResource SystemOrange}"/>
+                                                        <Setter TargetName="Indicator" Property="BoxView.Color" Value="{StaticResource SystemTeal}"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+
+                                                <VisualState x:Name="Unchecked">
+                                                    <VisualState.Setters>
+                                                        <Setter TargetName="TextLabel" Property="Label.TextColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray200}}"/>
+                                                        <Setter TargetName="Indicator" Property="BoxView.Color" Value="Transparent"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateGroupList>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Label Grid.Row="0" Grid.Column="0" x:Name="TextLabel" Text="{TemplateBinding Content}" />
+                                    <BoxView Grid.Row="1" Grid.ColumnSpan="2" x:Name="Indicator" Color="Transparent"/>
+                                    <!--<Grid Grid.Column="1" Grid.Row="0" HorizontalOptions="End" Margin="15,-15,-15,15" Padding="2" x:Name="TabBadge" 
+                                          IsVisible="{Binding IsTabBadgeVisible}" 
+                                          BindingContext="{Binding BindingContext, Source={RelativeSource Mode=TemplatedParent}}">
+                                        <Ellipse Grid.Column="0" Grid.Row="0" Fill="Red" WidthRequest="20" HeightRequest="20"
+                                                 VerticalOptions="Center" HorizontalOptions="Center" ZIndex="4" />
+                                        <Label Grid.Column="0" Grid.Row="0" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White"
+                                               Text="{Binding BadgeValue}" FontAttributes="Bold" FontSize="10" ZIndex="5"
+                                                BindingContext="{Binding BindingContext, Source={RelativeSource Mode=TemplatedParent}}">
+                                            <Label.FontFamily>
+                                                <OnPlatform x:TypeArguments="x:String">
+                                                    <On Platform="iOS" Value="sans-serif" />
+                                                    <On Platform="Android" Value="sans-serif" />
+                                                    <On Platform="WinUI" Value="sans-serif" />
+                                                </OnPlatform>
+                                            </Label.FontFamily>
+                                        </Label>
+                                    </Grid>-->
+                                </Grid>
+                            </ControlTemplate>
+                        </RadioButton.ControlTemplate>
+                    </RadioButton>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+            <BindableLayout.EmptyView>
+                <Label Text="{Static root:CommonValues.NoHistory}"/>
+            </BindableLayout.EmptyView>
+        </HorizontalStackLayout>
+        <ContentPresenter Grid.Row="1" Grid.Column="0" x:Name="content" Content="{Binding SelectedTab}" VerticalOptions="Fill" HorizontalOptions="Fill" />
+    </Grid>
+
+</ContentView>

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TimeClock.JdeSync": {
+      "commandName": "Project",
+      "commandLineArgs": "-timeentry",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

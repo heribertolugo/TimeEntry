@@ -1,0 +1,29 @@
+
+*** NOTE: in order to use EF commands, you must go into project properties and change taget OS to none. ***
+*** Please change it back when done, to the previous target OS and build number ***
+
+Common Commands:
+Add-Migration <MigrationName> -OutputDir <DirectoryPath> -Project <PROJECT> -StartupProject <PROJECT> -Context <Context Class Name>
+dotnet ef migrations add <MigrationName> --output-dir <DirectoryPath> --project <PROJECT> --startup-project <PROJECT> --context <Context Class Name>
+
+Update-Database -Migration <MigrationName or ID> -Project <PROJECT> -StartupProject <PROJECT> -Connection <CONNECTIONSTRING> -Context <Context Class Name>
+dotnet ef database update --migration <MigrationName or ID> --project <PROJECT> --startup-project <PROJECT> --connection <CONNECTIONSTRING> --context <Context Class Name>
+*** remove all tables from database
+Update-Database -Migration:0 -Project <PROJECT> -StartupProject <PROJECT> -Connection <CONNECTIONSTRING> -Context <Context Class Name>
+
+Resources:
+https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying?tabs=vs
+https://learn.microsoft.com/en-us/ef/core/cli/powershell
+
+
+Hierarchy:
+The database is structured using the following hierarchy, which displays which tables are dependent to which tables. 
+Data must exist starting with the first tier, and subsequesntly down to lower tiers
+A diagram displaying the relationships can be seen in the Master Branch -> Architecture -> [Hierarchy | Diagram_0]
+
+Tier 1: Locations | Departments | EquipmentTypes
+Tier 2: DepartmentToLocations (Locations & Departments) | Equipments (EquipmentTypes)
+Tier 3: Devices (DepartmentToLocations) | Users (DepartmentToLocations)
+Tier 4: PunchEntries (Users) | Barcodes (Users) | EquipmentToUsers (Users & Equipments) | EquipmentsToDepartmentToLocations(Users & DepartmentToLocations & Equipments)
+Tier 5: PunchEntriesHistories (PunchEntries & Devices & Users)
+Tier 6: PunchEntriesCurrentStates (PunchEntries & PunchEntriesHistories)

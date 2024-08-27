@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Controls.ToggleSwitch"
+             x:Name="delf"
+             WidthRequest="70"
+             HeightRequest="20" Padding="0" Margin="0">
+    <Grid RowDefinitions="Auto" ColumnDefinitions="Auto,*" Padding="0" Margin="0" HorizontalOptions="Fill" VerticalOptions="Fill"
+          HeightRequest="{Binding Source={x:Reference delf}, Path=HeightRequest}" ColumnSpacing="5">
+        <Label Grid.Row="0" Grid.Column="0" Text="{Binding Source={x:Reference delf}, Path=Text}" VerticalOptions="Center" HorizontalOptions="Center" 
+               Padding="0" Margin="0" x:Name="Label" />
+        <AbsoluteLayout Grid.Row="0" Grid.Column="1" x:Name="SwitchLayout" Padding="0" Margin="0" HorizontalOptions="Fill" VerticalOptions="Fill"
+                        HeightRequest="{Binding Source={x:Reference delf}, Path=HeightRequest}">
+            
+            <RoundRectangle AbsoluteLayout.LayoutBounds="0.5,0.5,.75,.75" AbsoluteLayout.LayoutFlags="All" ZIndex="10" 
+                    x:Name="Track" VerticalOptions="Center" HorizontalOptions="Fill"
+                    CornerRadius="10"/>
+            
+            <Ellipse AbsoluteLayout.LayoutBounds="0,0,30,1" AbsoluteLayout.LayoutFlags="PositionProportional,HeightProportional" ZIndex="11" 
+                     x:Name="Thumb" IsVisible="True" WidthRequest="{Binding Source={x:Reference delf}, Path=HeightRequest}" />
+        </AbsoluteLayout>
+
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="TapGestureRecognizer_Tapped" />
+        </Grid.GestureRecognizers>
+    </Grid>
+</ContentView>

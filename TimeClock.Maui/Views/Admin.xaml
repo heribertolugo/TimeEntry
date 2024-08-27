@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.Admin"
+             xmlns:controls="clr-namespace:TimeClock.Maui.Controls"
+             xmlns:children="clr-namespace:TimeClock.Maui.Views.AdminSection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             BackgroundColor="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}"
+             NavigationPage.HasBackButton="False">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+    <shared:BaseContentPage.BindingContext>
+        <local:AdminViewModel x:Name="ViewModel"/>
+    </shared:BaseContentPage.BindingContext>
+    <Grid HorizontalOptions="Fill" VerticalOptions="Fill">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".20" HorizontalOptions="Fill" />
+
+            <!-- Current as of [TIME] -->
+        <HorizontalStackLayout HorizontalOptions="Start" ZIndex="2">
+            <!--<Label Text="{Binding LastFetchedAt, StringFormat='Current as of {0:t}'}" Style="{StaticResource h4}"/>-->            
+        </HorizontalStackLayout>         
+            <!-- Select date -->
+        <HorizontalStackLayout HorizontalOptions="Center" IsVisible="true" ZIndex="2">   
+            <DatePicker x:Name="FilterDatePicker" IsVisible="{Binding NeedsDatePicker}" />
+        </HorizontalStackLayout>
+        <!-- Close Button -->
+        <HorizontalStackLayout Grid.Column="0" Grid.Row="0" ZIndex="2" HorizontalOptions="End" VerticalOptions="Fill">
+            <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center" Margin="0,0,20,10"
+                    Style="{StaticResource DangerButton}" Text="Close" Command="{Binding CloseCommand}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Xmark}"/>
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+        <!-- TABS: 
+            (1) Punch Status (in/out) for current day (default). Can change date.
+            Only shows employees who have had a punch for that day.
+            Shows attached equipment for each employee.
+            Shows punch summary (from - to), with equipment attached.
+            Clicking a row goes to the punch details for that employee on that day, with ability to edit.
+            Ordered by employee name. Employee with no punch should not show. 
+            Employee currently punched out should be grayed out.
+            Live update? Or refresh button and text: "live as of [time]"
+            (2) Employee List. Can select an employee to view punch and equipment history.
+            Can select date. Can click to edit record (punches, equipment)
+            (3) ???
+        -->
+        <controls:TabControl Grid.Column="0" Grid.Row="1" SelectedTabName="Summary" VerticalOptions="Fill" Padding="10" ZIndex="2" TabChanged="{Binding TabChangedCommand}">
+            <controls:TabControl.Tabs>
+                <controls:TabControlItem Title="{Static local:AdminViewTabProperties.Summary}" BadgeValue="{x:Null}">
+                    <children:PunchSummary UserId="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserId, Mode=OneWay}" 
+                                          FilterDate="{Binding Source={x:Reference FilterDatePicker}, Mode=TwoWay, Path=Date}" HorizontalOptions="Fill" VerticalOptions="Fill" />
+                </controls:TabControlItem>
+                <controls:TabControlItem Title="{Static local:AdminViewTabProperties.EditEntry}" BadgeValue="{x:Null}">
+                    <children:ManagePunches UserId="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserId, Mode=OneWay}" 
+                                          UserFirstName="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserFirstName, Mode=TwoWay}" 
+                                          UserLastName="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserLastName, Mode=TwoWay}" 
+                                          UserEmployeeNumber="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserEmployeeNumber, Mode=TwoWay}" 
+                                          UserName="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserName, Mode=TwoWay}"/>
+                </controls:TabControlItem>
+                <controls:TabControlItem Title="{Static local:AdminViewTabProperties.Employees}" BadgeValue="{x:Null}">
+                    <children:ManageEmployees UserId="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserId, Mode=OneWay}" />
+                </controls:TabControlItem>
+                <controls:TabControlItem Title="{Static local:AdminViewTabProperties.PunchRequests}" BadgeValue="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=TotalOpenRequests, Mode=OneWay}">
+                    <children:ManageRequests UserId="{Binding Source={x:RelativeSource AncestorType={x:Type local:AdminViewModel}}, Path=UserId, Mode=OneWay}" />
+                </controls:TabControlItem>
+            </controls:TabControl.Tabs>
+        </controls:TabControl>
+    </Grid>
+</shared:BaseContentPage>

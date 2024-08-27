@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="TimeClock.Maui.Views.HistorySection.EditPunch"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.HistorySection"
+            >
+    <toolkit:Popup.BindingContext>
+        <local:EditPunchViewModel x:Name="ViewModel"/>
+    </toolkit:Popup.BindingContext>
+    <Border WidthRequest="350" HeightRequest="550" Margin="0" Padding="0"
+            BackgroundColor="{AppThemeBinding Dark={StaticResource WindowBackgroundColorDark}, 
+                Light={StaticResource WindowBackgroundColor}}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Select new punch time:" HorizontalOptions="Center"
+                   Margin="0,0,0,0" Padding="0" />
+            <!-- Orginial Punch Time -->
+            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalOptions="Center" Style="{StaticResource h6}" 
+                   TextColor="{StaticResource Gray500}" Padding="0" Margin="0" IsVisible="{Binding IsNotNew}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="OLD: " Style="{StaticResource h6span}"/>
+                        <Span Text="{Binding PunchTime}" Style="{StaticResource h6span}"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <!-- New Punch Time -->
+            <TimePicker Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalOptions="Center" BackgroundColor="{StaticResource Gray900}" 
+                        Time="{Binding NewPunchTime}"/>
+            <!-- Reason Textbox -->
+            <Editor Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HeightRequest="250" WidthRequest="240" MaxLength="100" Placeholder="Specify a reason:" 
+                        BackgroundColor="{StaticResource Gray900}" Keyboard="Text" HorizontalOptions="Center" Margin="0,20,0,0" 
+                        Text="{Binding Reason}"/>
+            <Button Grid.Row="4" Grid.Column="1" Text="Cancel" Margin="0,20,20,0" Clicked="CancelButton_Clicked" />
+            <Button Grid.Row="4" Grid.Column="2" Text="Submit" Margin="0,20,0,0" Clicked="SaveButton_Clicked" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

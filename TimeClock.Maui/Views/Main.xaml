@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:models="clr-namespace:TimeClock.Maui.Models"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:controls="clr-namespace:TimeClock.Maui.Controls"
+             x:Class="TimeClock.Maui.Views.Main"
+             x:DataType="viewmodels:MainViewModel"
+             BackgroundColor="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}">
+
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="5" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".50"/>
+        <!-- Bar Code Mode Button -->
+        <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="3" HorizontalOptions="End" VerticalOptions="Start">
+            <Border Style="{StaticResource ButtonBorder}">
+                <ImageButton Command="{Binding TogglePunchTypeCommand}" Source="transparent_scanner_white_240.png" 
+                             WidthRequest="30" HeightRequest="30" BackgroundColor="Transparent" x:Name="togglePunchTypeButton">
+                    <ImageButton.Opacity>
+                        <Binding Path="PunchType" Converter="{converters:PunchTypeToDecimalConverter}">
+                            <Binding.ConverterParameter>
+                                <models:PunchTypeToDecimalConverterParam ValueIfBarCode='1' DefaultValue='0.5'/>
+                            </Binding.ConverterParameter>
+                        </Binding>
+                    </ImageButton.Opacity>
+                </ImageButton>
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="Disabled"/>
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#80FFFFFF"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </VisualStateManager.VisualStateGroups>
+            </Border>
+        </HorizontalStackLayout>
+        <!-- Page Title -->
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="3" HorizontalOptions="Fill" VerticalOptions="Start" Padding="0" Margin="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="1" Grid.Row="0" Text="{Binding TargetPageDescription}" HorizontalTextAlignment="Center" HorizontalOptions="Fill" Style="{StaticResource h1}" Padding="0" Margin="0" 
+                   x:Name="titleLabel">
+                <Label.Background>
+                    <LinearGradientBrush EndPoint="1,0">
+                        <GradientStop Color="Transparent" Offset="0" />
+                        <GradientStop Color="{Binding TitleColor}" Offset="0.5" />
+                        <GradientStop Color="Transparent" Offset="1" />
+                    </LinearGradientBrush>
+                </Label.Background>
+            </Label>
+        </Grid>
+            
+        <!-- User Name / Password Input / Action Button -->
+        <VerticalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="3" VerticalOptions="Center">
+            <Entry MaxLength="20" Placeholder="Enter username" Style="{StaticResource SemiTransparent}" WidthRequest="300" Text="{Binding UserName}" x:Name="usernameEntry" ZIndex="3">
+                <Entry.Triggers>
+                    <DataTrigger Value="0" TargetType="Entry">
+                        <DataTrigger.Binding>
+                            <Binding Path="PunchType" Converter="{converters:PunchTypeToDecimalConverter}">
+                                <Binding.ConverterParameter>
+                                    <models:PunchTypeToDecimalConverterParam ValueIfBarCode='0' DefaultValue='0.95'/>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </DataTrigger.Binding>
+                        <Setter Property="VisualStateManager.VisualStateGroups">
+                            <VisualStateGroupList>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="PlaceholderColor" Value="{StaticResource White}" />
+                                            <Setter Property="BackgroundColor" Value="{StaticResource SystemRed}" />
+                                            <Setter Property="Placeholder" Value="CLICK HERE" />
+                                            <Setter Property="FontSize" Value="20" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Focused">
+                                        <VisualState.Setters>
+                                            <Setter Property="TextColor" Value="{StaticResource SystemOrange}" />
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="Placeholder" Value="  Scan barcode" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="Placeholder" Value="Please Wait" />
+                                            <Setter Property="PlaceholderColor" Value="{StaticResource White}" />
+                                            <Setter Property="FontSize" Value="20" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </Setter>
+                    </DataTrigger>
+                </Entry.Triggers>
+            </Entry>
+            <Entry MaxLength="40" Placeholder="Enter password" Style="{StaticResource SemiTransparent}" WidthRequest="300" Text="{Binding Password}" IsPassword="True" x:Name="passwordEntry" ZIndex="3">
+                <Entry.Opacity>
+                    <Binding Path="PunchType" Converter="{converters:PunchTypeToDecimalConverter}">
+                        <Binding.ConverterParameter>
+                            <models:PunchTypeToDecimalConverterParam ValueIfBarCode='0' DefaultValue='0.95'/>
+                        </Binding.ConverterParameter>
+                    </Binding>
+                </Entry.Opacity>
+            </Entry>
+            <Button Text="{Binding TargetActionDescription}" WidthRequest="300" x:Name="actionButton" ZIndex="3">
+                <Button.Opacity>
+                    <Binding Path="PunchType" Converter="{converters:PunchTypeToDecimalConverter}">
+                        <Binding.ConverterParameter>
+                            <models:PunchTypeToDecimalConverterParam ValueIfBarCode='0' DefaultValue='0.95'/>
+                        </Binding.ConverterParameter>
+                    </Binding>
+                </Button.Opacity>
+            </Button>
+        </VerticalStackLayout>
+        <!-- Location / Department -->
+        <FlexLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Wrap="Wrap" ZIndex="3">
+            <Label Text="{Binding Location}" HorizontalTextAlignment="Start" Margin="0,0,20,0" Style="{StaticResource h3}" ZIndex="3"/>
+            <Label Text="{Binding Department}" HorizontalTextAlignment="Start" Margin="0" Style="{StaticResource h3}" ZIndex="3" IsVisible="false"/>
+        </FlexLayout>
+        <!-- Time / Date -->
+        <FlexLayout Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Wrap="Wrap" HorizontalOptions="Fill" JustifyContent="SpaceBetween" ZIndex="3">
+            <Label 
+               Text="{Binding ClockDateTime, StringFormat='{0:T}'}" Margin="0" Padding="0,0,20,0" LineBreakMode="NoWrap"
+               HorizontalTextAlignment="Start" Style="{StaticResource h1}" ZIndex="3"/>
+            <Label 
+               Text="{Binding Date, StringFormat='{0:MM/dd/yyyy}'}" Margin="0" LineBreakMode="NoWrap"
+               HorizontalTextAlignment="End" Style="{StaticResource h1}" ZIndex="3"/>
+        </FlexLayout>
+        <!-- Punch/Login Message Containers -->
+        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="5" HorizontalOptions="Center" VerticalOptions="End" x:Name="toaster" ZIndex="2">
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+            <controls:DoubleLabel HorizontalTextAlignment="Center" HorizontalOptions="Center" VerticalOptions="End" Opacity="0" IsVisible="false" ZIndex="2"/>
+        </VerticalStackLayout>
+    </Grid>
+</shared:BaseContentPage>

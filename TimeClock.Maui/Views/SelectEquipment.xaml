@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             x:Class="TimeClock.Maui.Views.SelectEquipment"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             BackgroundColor="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}"
+             NavigationPage.HasBackButton="False">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+    <ContentPage.BindingContext>
+        <viewmodels:SelectEquipmentViewModel x:Name="ViewModel" />
+    </ContentPage.BindingContext>
+
+    <!-- Layout -->
+    <Grid Margin="0" x:DataType="viewmodels:SelectEquipmentViewModel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />            
+        </Grid.RowDefinitions>
+
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".20"/>
+        <!-- Top Bar -->
+        <FlexLayout Grid.Column="0" Grid.Row="0" ZIndex="2" HorizontalOptions="Fill" Wrap="Wrap" JustifyContent="SpaceBetween">
+            <HorizontalStackLayout HorizontalOptions="Start" VerticalOptions="End" Margin="10">
+                <!-- LEFT TEXT -->
+                <Label Style="{StaticResource h3}" Margin="0,0,50,10">
+                    <Label.Text>
+                        <MultiBinding Mode="OneWay" StringFormat="{}{0} items available at {1} {2}">
+                            <Binding Path="TotalEquipment" />
+                            <Binding Path="Department" /><!-- we are currently not using departments, only locations. so property is mispelled purposely -->
+                            <Binding Path="LocationName" />
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+            </HorizontalStackLayout>
+            <!-- MIDDLE TEXT -->
+            <Label Grid.Column="0" Grid.Row="0" Text="{Binding ScreenTitle}" Style="{StaticResource h2}"
+                VerticalOptions="End" HorizontalOptions="Center" Margin="0,0,50,10" />
+            <!-- MAIN BUTTONS -->
+            <HorizontalStackLayout>
+                <Button Grid.Column="1" Grid.Row="0" WidthRequest="150" VerticalOptions="End" HorizontalOptions="End" Margin="0,0,20,10"
+                        Style="{StaticResource DangerButton}" Text="Cancel" Command="{Binding CloseCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Xmark}"/>
+                    </Button.ImageSource>
+                </Button>
+                <Button Grid.Column="1" Grid.Row="0" WidthRequest="150" VerticalOptions="End" HorizontalOptions="End" Margin="0,0,50,10"
+                        Text="Accept" Command="{Binding AcceptCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Check}"/>
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+        </FlexLayout>
+
+        <!-- Items Grid -->
+        <RefreshView Grid.Column="0" Grid.Row="1" Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}" ZIndex="2"> 
+            <CollectionView x:Name="SelectedEquipmentCollectionView" BackgroundColor="Transparent" ItemSizingStrategy="MeasureAllItems"
+                            ItemsSource="{Binding Equipments}" SelectedItem="{Binding Selected, Mode=TwoWay}" RemainingItemsThreshold="1"
+                            RemainingItemsThresholdReachedCommand="{Binding DelayLoadMoreCommand}" SelectionMode="Single">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="{OnIdiom Phone=1, Watch=1, Default=2}" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="12" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label HorizontalOptions="Center" Text="No equipment found"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:EquipmentDto">
+                        <Border StrokeShape="RoundRectangle 5,5,5,5" x:Name="ItemContainer" Stroke="{StaticResource SystemOrange}">
+                            <Grid Padding="30,10" Margin="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <AbsoluteLayout Grid.Column="1" Grid.Row="0" AnchorX="0" AnchorY="0" IsVisible="{Binding EquipmentsToUsers, Converter={converters:IsGreaterThanZeroConverter}}">
+                                    <Image AbsoluteLayout.LayoutBounds=".9,.1,AutoSize,AutoSize" AbsoluteLayout.LayoutFlags="PositionProportional">
+                                        <Image.Source>
+                                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" 
+                                                             Size="30" Glyph="{StaticResource User}"/>
+                                        </Image.Source>
+                                    </Image>
+                                </AbsoluteLayout>
+                                <Label Grid.Column="0" Grid.Row="0" Text="{Binding Sku}" Style="{StaticResource h3}" />
+                                <Label Grid.Column="1" Grid.Row="0" Text="{Binding EquipmentsToUsers[0].User.FullNameOr}" FontAttributes="Bold" Style="{StaticResource h3}" TextColor="{StaticResource White}" />
+                                <Label Grid.Column="0" Grid.Row="1" Text="{Binding Description}" />
+                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding Name}" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type viewmodels:SelectEquipmentViewModel}},Path=ItemTappedCommand }"
+                                                      CommandParameter="{x:Reference ItemContainer}"/>
+                            </Border.GestureRecognizers>
+                            <!--<Border.BackgroundColor>
+                                <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue='Transparent', TrueValue={StaticResource SystemOrange}}">
+                                    <Binding Path="Id"/>
+                                    <Binding Path="SelectedId" Source="{x:RelativeSource AncestorType={x:Type viewmodels:SelectEquipmentViewModel}}"/>                                            
+                                </MultiBinding>
+                            </Border.BackgroundColor>-->
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding EquipmentsToUsers, Converter={converters:IsGreaterThanZeroConverter}}" Value="False" TargetType="Border">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding EquipmentsToUsers, Converter={converters:IsGreaterThanZeroConverter}}" Value="True" TargetType="Border">
+                                            <Setter Property="BackgroundColor" Value="#80919191" />
+                                            <Setter Property="Opacity" Value="1.5" />
+                                        </DataTrigger>
+                                        <DataTrigger Value="True" TargetType="Border">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                    <Binding Path="Id"/>
+                                                    <Binding Path="SelectedId" Source="{x:RelativeSource AncestorType={x:Type viewmodels:SelectEquipmentViewModel}}"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="BackgroundColor" Value="{StaticResource SystemOrange}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <StackLayout HorizontalOptions="Center" Orientation="Horizontal">
+                        
+                    </StackLayout>
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+</shared:BaseContentPage>

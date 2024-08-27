@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.Registration"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             Title="TimeClock Setup"
+             x:DataType="viewmodels:RegistrationViewModel"
+             BackgroundColor="{AppThemeBinding Dark={StaticResource WindowBackgroundColorDark}, Light={StaticResource WindowBackgroundColor}}"
+             x:Name="delf">
+
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:IsNotNullConverter x:Key="IsNotNullConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, Auto, *, Auto, Auto" VerticalOptions="Fill" HorizontalOptions="Fill" RowSpacing="10" x:DataType="viewmodels:RegistrationViewModel">
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="5" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".50"/>
+        <!-- Progress Messages Placeholder -->
+        <Label Grid.Row="0" Grid.Column="0" x:Name="messageDummy" Text="{Binding Message}" TextColor="{Binding MessageColor}" VerticalOptions="Center" HorizontalOptions="Center" Style="{StaticResource h3}" ZIndex="2" />
+        <!-- Locations Dropdown -->
+        <Picker Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Locations}" SelectedItem="{Binding SelectedLocation}" IsVisible="{Binding NeedsLocation}" 
+                VerticalOptions="Center" HorizontalOptions="Center" ItemDisplayBinding="{Binding Name, Converter={converters:TrimStringConverter}}" 
+                ZIndex="2" Style="{StaticResource WhitePicker}">
+            <Picker.Behaviors>
+                <toolkit:EventToCommandBehavior
+                EventName="SelectedIndexChanged"
+                Command="{Binding Source={x:Reference delf}, Path=BindingContext.SelectedLocationChangedCommand}" />
+            </Picker.Behaviors>
+        </Picker>
+        <!-- User Credentials -->
+        <VerticalStackLayout x:Name="credentialsWrapper" Grid.Row="2" Grid.Column="0" HorizontalOptions="Center" MinimumHeightRequest="0" HeightRequest="0" ZIndex="2">
+            <Label Text="username" Style="{StaticResource h6}" Margin="0" />
+            <Entry x:Name="usernameEntry" Text="{Binding UserName}" Placeholder="username" 
+                   Style="{StaticResource SemiTransparent}" MinimumHeightRequest="32" HeightRequest="32" WidthRequest="200" Margin="5,5,0,5" />
+            <Label Text="password" Style="{StaticResource h6}" Margin="0" />
+            <Entry x:Name="passwordEntry" Text="{Binding Password}" Placeholder="Password" IsPassword="True" 
+                   Style="{StaticResource SemiTransparent}" MinimumHeightRequest="32" HeightRequest="32" WidthRequest="200" Margin="5,5,0,5" />
+            <Label Text="employee ID" Style="{StaticResource h6}" Margin="0" />
+            <Entry x:Name="employeeIdEntry" Text="{Binding EmployeeId}" Placeholder="employee ID (AN8)" 
+                   Style="{StaticResource SemiTransparent}" MinimumHeightRequest="32" HeightRequest="32" WidthRequest="200" Margin="5,5,0,5" />
+        </VerticalStackLayout>
+        <!-- Finish Button -->
+        <Button Grid.Row="3" Grid.Column="0" Text="Finish Registration" VerticalOptions="Start" HorizontalOptions="Center" ZIndex="2" 
+                IsVisible="{Binding SelectedLocation, Converter={StaticResource IsNotNullConverter}}" Command="{Binding FinishRegistrationCommand}" 
+                IsEnabled="{Binding FinishButtonEnabled}" />
+        <!-- Progress Indicators -->
+        <Label Grid.Row="4" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center" TextColor="{StaticResource SystemTeal}" Text="{Binding Progress, StringFormat='{0:P}'}" 
+               Margin="0" Padding="0" IsVisible="{Binding ShowProgress}"/>
+        <ProgressBar Grid.Row="5" Grid.Column="0" VerticalOptions="Center" IsVisible="{Binding ShowProgress}" ZIndex="2" Margin="0" 
+                     ProgressColor="{StaticResource SystemTeal}" BackgroundColor="{StaticResource Gray500}" Progress="{Binding Progress}" />
+        <!-- Progress Messages -->
+        <!--<Label Grid.Row="0" Grid.Column="0" x:Name="messageLabel" Text="{Binding Message}" TextColor="{Binding MessageColor}" IsVisible="False" VerticalOptions="Center" HorizontalOptions="Center" Style="{StaticResource h3}" ZIndex="5" />-->
+    </Grid>
+</ContentPage>

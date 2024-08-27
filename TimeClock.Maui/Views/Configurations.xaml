@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="TimeClock.Maui.Views.Configurations"
+             xmlns:controls="clr-namespace:TimeClock.Maui.Controls"
+             xmlns:children="clr-namespace:TimeClock.Maui.Views.ConfigSection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:models="clr-namespace:TimeClock.Core.Models;assembly=TimeClock.Core"
+             BackgroundColor="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}"
+             NavigationPage.HasBackButton="False"
+             x:DataType="local:ConfigurationsViewModel">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+    <ContentPage.BindingContext>
+        <local:ConfigurationsViewModel x:Name="ViewModel" />
+    </ContentPage.BindingContext>
+    
+
+    <Grid HorizontalOptions="Fill" ColumnSpacing="30" RowSpacing="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="16" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".20" />
+        <!-- Person Logged-in Name -->
+        <Border Grid.Row="0" Grid.Column="0" ZIndex="2" Padding="20,10" VerticalOptions="End">
+            <Label Text="{Binding UserFullNameOr}" />
+        </Border>
+        <!-- App Version -->
+        <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ZIndex="2" Padding="20,10" VerticalOptions="End">
+            <FlexLayout Direction="Row" HorizontalOptions="Fill">
+                <Label HorizontalOptions="Start">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Application Ver: "/>
+                            <Span Text="{Binding AppVersion}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </FlexLayout>
+        </Border>
+        <!-- Theme Toggle -->
+        <VerticalStackLayout Grid.Row="0" Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center" Padding="0,0,10,0" Margin="0" ZIndex="2">
+            <Label HorizontalOptions="End" VerticalOptions="Center" Text="{Binding Message}" TextColor="{Binding MessageColor}" />
+            <Label Text="Theme" HorizontalOptions="Center" IsVisible="false" />
+            <Switch x:Name="themeToggle" IsToggled="{Binding IsLightTheme}" HorizontalOptions="Center" IsVisible="false">
+                <Switch.Behaviors>
+                    <toolkit:EventToCommandBehavior EventName="Toggled" Command="{Binding ThemeToggledCommand}" CommandParameter="{Binding Source={x:Reference themeToggle}, Path=IsToggled}" />
+                </Switch.Behaviors>
+            </Switch>
+        </VerticalStackLayout>
+        <!-- Left Top Column -->
+        <Border Grid.Row="1" Grid.Column="0" Padding="20,10" ZIndex="2">
+            <VerticalStackLayout>
+                <!-- Location -->
+                <HorizontalStackLayout>
+                    <Picker Title="Select Location" SelectedItem="{Binding SelectedLocation}" ItemsSource="{Binding Locations}" ItemDisplayBinding="{Binding Name}" Style="{StaticResource WhitePicker}"
+                             WidthRequest="200" IsEnabled="{Binding IsNotBusyOrNotRegistered}">
+                        <Picker.Triggers>
+                            <DataTrigger TargetType="Picker" Binding="{Binding IsSelectedLocationValid}" Value="false">
+                                <Setter Property="Style" Value="{StaticResource InvalidPicker}"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Picker" Binding="{Binding IsSelectedLocationValid}" Value="true">
+                                <Setter Property="Style" Value="{StaticResource WhitePicker}"/>
+                            </DataTrigger>
+                        </Picker.Triggers>
+                    </Picker>
+                    <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="End" 
+                        Margin="0" Padding="0" BackgroundColor="Transparent" Command="{Binding SelectLocationHelpCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+                <!-- Department -->
+                <HorizontalStackLayout Margin="0,10" IsVisible="False">
+                    <Picker Title="Select Department" SelectedItem="{Binding SelectedDepartment}" ItemsSource="{Binding Departments}" ItemDisplayBinding="{Binding Name}" Style="{StaticResource WhitePicker}" 
+                             WidthRequest="200" IsEnabled="{Binding IsNotBusyOrNotRegistered}">
+                        <Picker.Triggers>
+                            <DataTrigger TargetType="Picker" Binding="{Binding IsSelectedDepartmentValid}" Value="false">
+                                <Setter Property="Style" Value="{StaticResource InvalidPicker}"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Picker" Binding="{Binding IsSelectedDepartmentValid}" Value="true">
+                                <Setter Property="Style" Value="{StaticResource WhitePicker}"/>
+                            </DataTrigger>
+                        </Picker.Triggers>
+                    </Picker>
+                    <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="End" 
+                        Margin="0" Padding="0" BackgroundColor="Transparent" Command="{Binding SelectDepartmentHelpCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+                <!-- Is Public Device -->
+                <HorizontalStackLayout>
+                    <Label Text="Is Public Device" Style="{StaticResource h5}" FontAttributes="None" Margin="0" VerticalOptions="Center"/>
+                    <CheckBox IsChecked="{Binding IsPublicDevice}" IsEnabled="{Binding IsNotBusyOrNotRegistered}" Margin="0" HorizontalOptions="Center">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroupList>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="Color" Value="{StaticResource SystemOrangeDark}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+
+                                    <VisualState x:Name="IsChecked">
+                                        <VisualState.Setters>
+                                            <Setter Property="Color" Value="{StaticResource SystemTeal}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Property="Color" Value="{StaticResource Gray500}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </VisualStateManager.VisualStateGroups>
+                    </CheckBox>
+                    <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="Center" 
+                        Margin="0" Padding="0" BackgroundColor="Transparent" Command="{Binding IsPublicDeviceHelpCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+        <!-- Right Column -->
+        <Border Grid.Row="1" Grid.Column="2" Grid.RowSpan="3" Padding="20,10" HorizontalOptions="End" VerticalOptions="Start" ZIndex="2">
+            <VerticalStackLayout>
+                <!-- API Endpoint -->
+                <FlexLayout HorizontalOptions="Start" Margin="0,10">
+                    <HorizontalStackLayout>
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="End" Margin="0">
+                            <Label Text="API Endpoint" Style="{StaticResource h6}" FontAttributes="None" Margin="0"/>
+                            <Entry Placeholder="API Endpoint" Text="{Binding ApiEndpoint}" Style="{StaticResource SemiTransparent}" MinimumHeightRequest="32" HeightRequest="32" 
+                                   WidthRequest="200" Margin="5,5,0,5" IsEnabled="{Binding IsNotBusy}">
+                                <Entry.Triggers>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsApiEndPointValid}" Value="false">
+                                        <Setter Property="Style" Value="{StaticResource InvalidEntry}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsApiEndPointValid}" Value="true">
+                                        <Setter Property="Style" Value="{StaticResource SemiTransparent}"/>
+                                    </DataTrigger>
+                                </Entry.Triggers>
+                                <Entry.Behaviors>
+                                    <toolkit:TextValidationBehavior InvalidStyle="{StaticResource InvalidEntry}" ValidStyle="{StaticResource SemiTransparent}"
+                                        Flags="ValidateOnUnfocusing" MinimumLength="1" MaximumLength="10" />
+                                </Entry.Behaviors>
+                            </Entry>
+                        </VerticalStackLayout>
+                        <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="Center" 
+                            Margin="0,0,10,0" Padding="0" BackgroundColor="Transparent" Command="{Binding ApiEndpointHelpCommand}">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16" />
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
+                    <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center"
+                        Text="Test" Command="{Binding TestConnectionCommand}" IsEnabled="{Binding IsNotBusy}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource CircleNodes}"/>
+                        </Button.ImageSource>
+                    </Button>
+                </FlexLayout>
+                <!-- Device Name -->
+                <FlexLayout HorizontalOptions="Start" Margin="0,10">
+                    <HorizontalStackLayout>
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="Device Name" Style="{StaticResource h6}" FontAttributes="None" Margin="0"/>
+                            <Entry Placeholder="Device Name" Text="{Binding DeviceId, Mode=OneWay}" Style="{StaticResource SemiTransparent}" IsReadOnly="True" MinimumHeightRequest="32" HeightRequest="32" 
+                                   WidthRequest="200" Margin="5,5,0,5" Focused="Entry_Focused">
+                                <Entry.Triggers>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsDeviceIdValid}" Value="false">
+                                        <Setter Property="Style" Value="{StaticResource InvalidEntry}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsDeviceIdValid}" Value="true">
+                                        <Setter Property="Style" Value="{StaticResource SemiTransparent}"/>
+                                    </DataTrigger>
+                                </Entry.Triggers>
+                                <Entry.Behaviors>
+                                    <toolkit:TextValidationBehavior InvalidStyle="{StaticResource InvalidEntry}" ValidStyle="{StaticResource SemiTransparent}"
+                                        Flags="ValidateOnUnfocusing" MinimumLength="1" MaximumLength="10" />
+                                </Entry.Behaviors>
+                            </Entry>
+                        </VerticalStackLayout>                        
+                        <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="Center" 
+                            Margin="0,0,10,0" Padding="0" BackgroundColor="Transparent" Command="{Binding DeviceIdHelpCommand}">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
+                    <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center"
+                        Text="Register" Command="{Binding RegisterDeviceCommand}" IsEnabled="{Binding IsNotBusyOrNotRegistered}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Cloud}"/>
+                        </Button.ImageSource>
+                    </Button>
+                </FlexLayout>
+                <!-- Device GUID -->
+                <FlexLayout HorizontalOptions="Start" Margin="0,10">
+                    <HorizontalStackLayout>
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="Device ID" Style="{StaticResource h6}" FontAttributes="None" Margin="0"/>
+                            <Entry Placeholder="Device ID" Text="{Binding DeviceGuid, Mode=OneWay}" Style="{StaticResource SemiTransparent}" IsReadOnly="True" MinimumHeightRequest="32" HeightRequest="32" 
+                                   WidthRequest="200" Margin="5,5,0,5" Focused="Entry_Focused" />
+                        </VerticalStackLayout>
+                        <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="Center" 
+                            Margin="0,0,10,0" Padding="0" BackgroundColor="Transparent" Command="{Binding DeviceGuidHelpCommand}">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
+                </FlexLayout>
+                <!-- API Token -->
+                <FlexLayout HorizontalOptions="Start" Margin="0,10">
+                    <HorizontalStackLayout>
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="API Token" Style="{StaticResource h6}" FontAttributes="None" Margin="0"/>
+                            <Entry Placeholder="API Token" Text="{Binding ApiToken, Mode=OneWay}" Style="{StaticResource SemiTransparent}" IsReadOnly="True" MinimumHeightRequest="32" HeightRequest="32" 
+                                   WidthRequest="200" Margin="5,5,0,5">
+                                <Entry.Triggers>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsApiTokenValid}" Value="false">
+                                        <Setter Property="Style" Value="{StaticResource InvalidEntry}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsApiTokenValid}" Value="true">
+                                        <Setter Property="Style" Value="{StaticResource SemiTransparent}"/>
+                                    </DataTrigger>
+                                </Entry.Triggers>
+                                <Entry.Behaviors>
+                                    <toolkit:TextValidationBehavior InvalidStyle="{StaticResource InvalidEntry}" ValidStyle="{StaticResource SemiTransparent}"
+                                        Flags="ValidateOnUnfocusing" MinimumLength="1" MaximumLength="10" />
+                                </Entry.Behaviors>
+                            </Entry>
+                        </VerticalStackLayout>                        
+                        <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="Center" 
+                            Margin="0,0,10,0" Padding="0" BackgroundColor="Transparent" Command="{Binding ApiTokenHelpCommand}">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
+                    <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center"
+                        Text="Reissue" Command="{Binding ReAuthenticateJwtCommand}" IsEnabled="{Binding IsNotBusy}" CommandParameter="{x:Reference credentialsWrapper}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Repeat}"/>
+                        </Button.ImageSource>
+                    </Button>
+                </FlexLayout>
+                <VerticalStackLayout x:Name="credentialsWrapper" MinimumHeightRequest="0" HeightRequest="0">
+                    <Entry x:Name="username" Placeholder="User Name" Style="{StaticResource SemiTransparent}" WidthRequest="200" Margin="5,5,0,5" MinimumHeightRequest="32" HeightRequest="32" />
+                    <Entry x:Name="password" Placeholder="Password" Style="{StaticResource SemiTransparent}" WidthRequest="200" Margin="5,5,0,5" IsPassword="true" MinimumHeightRequest="32" HeightRequest="32" />
+                    <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center" Text="Submit" IsEnabled="{Binding IsNotBusy}" 
+                            Command="{Binding SubmitJwtRefreshCommand}">
+                        <Button.CommandParameter>
+                            <MultiBinding Converter="{converters:MultiValuePassThroughConverter}">
+                                <Binding Path="Text" Source="{x:Reference username}"/>
+                                <Binding Path="Text" Source="{x:Reference password}"/>
+                            </MultiBinding>
+                        </Button.CommandParameter>
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource PaperPlane}"/>
+                        </Button.ImageSource>
+                    </Button>
+                </VerticalStackLayout>
+                <!-- API Expiration -->
+                <FlexLayout HorizontalOptions="Start" Margin="0,10">
+                    <HorizontalStackLayout>
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="API Token Expiration" Style="{StaticResource h6}" FontAttributes="None" Margin="0"/>
+                            <Entry Placeholder="API Token Expiration" Text="{Binding ApiTokenExpiration, Mode=OneWay}" Style="{StaticResource SemiTransparent}" IsEnabled="False" MinimumHeightRequest="32" 
+                                   HeightRequest="32" WidthRequest="200" Margin="5,5,0,5" />
+                        </VerticalStackLayout>                        
+                        <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="Center" 
+                            Margin="0,0,10,0" Padding="0" BackgroundColor="Transparent" Command="{Binding ApiTokenExpirationHelpCommand}">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16"/>
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
+                </FlexLayout>
+            </VerticalStackLayout>
+        </Border>
+        <!-- Left Mid Column Space -->
+        <Label Grid.Row="2" Grid.Column="0" Text=" " ZIndex="2" />
+        <!-- Left Bottom Column -->
+        <Border Grid.Row="3" Grid.Column="0" Padding="20,10" ZIndex="2" IsVisible="False">
+            <VerticalStackLayout>
+                <!-- Punch Type -->
+                <HorizontalStackLayout>
+                    <Picker Title="Default Punch Type" SelectedItem="{Binding DefaultPunchType}" ItemsSource="{Binding PunchTypes}"
+                            ItemDisplayBinding="{Binding .}" Style="{StaticResource WhitePicker}" IsEnabled="{Binding IsNotBusy}" />
+                    <Button MinimumWidthRequest="20" MinimumHeightRequest="20" HeightRequest="30" Opacity=".95" HorizontalOptions="Start" VerticalOptions="End" 
+                            Margin="0" Padding="0" BackgroundColor="Transparent" Command="{Binding SelectPunchTypeHelpCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource Question}" Size="16" />
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+                <!-- Timeout Screen -->
+                <HorizontalStackLayout Margin="0,10">
+                    <Picker Title="Select Idle Screen" SelectedItem="{Binding SelectedIdleScreen}" ItemsSource="{Binding IdleScreens}" 
+                            ItemDisplayBinding="{Binding Name}" Style="{StaticResource WhitePicker}" IsEnabled="{Binding IsNotBusy}" />
+                    <Entry Text="{Binding SelectedScreenTimeout}" WidthRequest="40" MinimumHeightRequest="32" HeightRequest="32" Style="{StaticResource SemiTransparent}" VerticalOptions="End" Margin="0" 
+                           x:Name="SelectedScreenTimeoutEntry" TextChanged="SelectedScreenTimeoutEntry_TextChanged" Keyboard="Numeric" MaxLength="3" />
+                </HorizontalStackLayout>
+                <!-- Save Button -->
+                <HorizontalStackLayout Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalOptions="End">
+                    <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center" Margin="0" Text="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource FloppyDisk}" />
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+        <!-- Misc Buttons -->
+        <FlexLayout Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" HorizontalOptions="Center" VerticalOptions="Center" ZIndex="2" 
+                    JustifyContent="SpaceEvenly"  Wrap="Wrap">
+            <Button VerticalOptions="Center" HorizontalOptions="Center" Margin="0,0,20,20" Text="Check Update" Command="{Binding CheckForUpdatesCommand}" IsEnabled="{Binding IsNotBusy}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource CloudBolt}" />
+                </Button.ImageSource>
+            </Button>
+            <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="Center" Margin="0,0,0,20" Text="View Logs" Command="{Binding ViewLogsCommand}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Book}" />
+                </Button.ImageSource>
+            </Button>
+        </FlexLayout>
+        <!-- Lower Right Hand Grid Cell -->
+        <HorizontalStackLayout Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalOptions="End">
+        </HorizontalStackLayout>
+    </Grid>
+</shared:BaseContentPage>

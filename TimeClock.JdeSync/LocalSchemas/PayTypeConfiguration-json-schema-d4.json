@@ -1,0 +1,322 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "PayTypeConfiguration-schema-json",
+  "description": "PayTypeConfiguration appconfig validator",
+  "title": "PayTypeConfiguration",
+  "type": "object",
+  "properties": {
+    "PayTypeConfiguration": {
+      "type": "object",
+      "properties": {
+        "straightTimeDba": { "type": "integer" },
+        "overtimeDba": { "type": "integer" },
+        "straightTimeGlCode": { "type": "string" },
+        "overtimeGlCode": { "type": "string" },
+        "defaultOvertimeRule": {
+          "type": [
+            "object"
+          ],
+          "properties": {
+            "afterHours": {
+              "type": "number"
+            },
+            "overtimeThreshold": {
+              "type": "string",
+              "enum": [
+                "Day",
+                "Week"
+              ]
+            },
+            "specialPay": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "holiday": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "increaseRateType": {
+                      "type": "string",
+                      "enum": [
+                        "Percentage",
+                        "FlatIncrease",
+                        "FlatPay"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "amount",
+                    "increaseRateType"
+                  ]
+                },
+                "saturday": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "increaseRateType": {
+                      "type": "string",
+                      "enum": [
+                        "Percentage",
+                        "FlatIncrease",
+                        "FlatPay"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "amount",
+                    "increaseRateType"
+                  ]
+                },
+                "sunday": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "increaseRateType": {
+                      "type": "string",
+                      "enum": [
+                        "Percentage",
+                        "FlatIncrease",
+                        "FlatPay"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "amount",
+                    "increaseRateType"
+                  ]
+                }
+              }
+            }
+          },
+          "required": [
+            "afterHours",
+            "overtimeThreshold"
+          ]
+        },
+        "specialOvertimeRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "objects": {
+                "type": [
+                  "string"
+                ]
+              },
+              "afterHours": {
+                "type": "number"
+              },
+              "overtimeThreshold": {
+                "type": "string",
+                "enum": [
+                  "Day",
+                  "Week"
+                ]
+              },
+              "specialPay": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "holiday": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "amount": {
+                        "type": "number"
+                      },
+                      "increaseRateType": {
+                        "type": "string",
+                        "enum": [
+                          "Percentage",
+                          "FlatIncrease",
+                          "FlatPay"
+                        ]
+                      }
+                    },
+                    "required": [ "amount", "increaseRateType" ]
+                  },
+                  "saturday": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "amount": {
+                        "type": "number"
+                      },
+                      "increaseRateType": {
+                        "type": "string",
+                        "enum": [
+                          "Percentage",
+                          "FlatIncrease",
+                          "FlatPay"
+                        ]
+                      }
+                    },
+                    "required": [ "amount", "increaseRateType" ]
+                  },
+                  "sunday": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "amount": {
+                        "type": "number"
+                      },
+                      "increaseRateType": {
+                        "type": "string",
+                        "enum": [
+                          "Percentage",
+                          "FlatIncrease",
+                          "FlatPay"
+                        ]
+                      }
+                    },
+                    "required": [ "amount", "increaseRateType" ]
+                  }
+                }
+              },
+              "objectsType": {
+                "type": "string",
+                "enum": [
+                  "Unions",
+                  "Projects"
+                ]
+              }
+            },
+            "required": [
+              "objects",
+              "afterHours",
+              "overtimeThreshold",
+              "objectsType"
+            ]
+          }
+        },
+        "jobTypePayRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "jobTypes": {
+                "type": "string"
+              },
+              "increaseRate": {
+                "type": [
+                  "object"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "increaseRateType": {
+                    "type": "string",
+                    "enum": [
+                      "Percentage",
+                      "FlatIncrease",
+                      "FlatPay"
+                    ]
+                  }
+                },
+                "required": [ "amount", "increaseRateType" ]
+              },
+              "specialPay": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "holiday": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "amount": {
+                        "type": "number"
+                      },
+                      "increaseRateType": {
+                        "type": "string",
+                        "enum": [
+                          "Percentage",
+                          "FlatIncrease",
+                          "FlatPay"
+                        ]
+                      }
+                    },
+                    "required": [ "amount", "increaseRateType" ]
+                  },
+                  "saturday": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "amount": {
+                        "type": "number"
+                      },
+                      "increaseRateType": {
+                        "type": "string",
+                        "enum": [
+                          "Percentage",
+                          "FlatIncrease",
+                          "FlatPay"
+                        ]
+                      }
+                    },
+                    "required": [ "amount", "increaseRateType" ]
+                  },
+                  "sunday": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "amount": {
+                        "type": "number"
+                      },
+                      "increaseRateType": {
+                        "type": "string",
+                        "enum": [
+                          "Percentage",
+                          "FlatIncrease",
+                          "FlatPay"
+                        ]
+                      }
+                    },
+                    "required": [ "amount", "increaseRateType" ]
+                  }
+                }
+              }
+            },
+            "required": [ "increaseRate", "jobTypes" ]
+          }
+        }
+      },
+      "required": [ "straightTimeDba", "overtimeDba", "straightTimeGlCode", "overtimeGlCode", "defaultOvertimeRule" ]
+    }
+  },
+  "required": ["payTypeConfig"],
+  "additionalProperties": true
+}

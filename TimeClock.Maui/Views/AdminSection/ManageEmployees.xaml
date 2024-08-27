@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.AdminSection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:localviews="clr-namespace:TimeClock.Maui.Views.AdminSection"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:controls="clr-namespace:TimeClock.Maui.Controls"
+             x:Name="this"
+             x:Class="TimeClock.Maui.Views.AdminSection.ManageEmployees"
+             x:DataType="local:ManageEmployeesViewModel">
+
+    <Grid HorizontalOptions="Fill" ColumnSpacing="20" RowSpacing="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{OnIdiom Default=Auto, Phone=*, Watch=*}"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="{OnIdiom Default=*, Phone=Auto, Watch=Auto}"/>
+        </Grid.ColumnDefinitions>
+
+
+        <!-- Import Users -->
+        <VerticalStackLayout Grid.Row="0" Grid.Column="{OnIdiom Default=2, Phone=0, Watch=0}" 
+                             Grid.RowSpan="{OnIdiom Default=2, Phone=0, Watch=0}" HorizontalOptions="End" Spacing="20">
+            <HorizontalStackLayout>
+                <Picker Title="Select/Import User" HorizontalOptions="Fill" Style="{StaticResource WhitePicker}" 
+                        ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedEmployee}" ItemDisplayBinding="{Binding FullNameOr}" />
+                <Button BackgroundColor="AliceBlue" TextColor="{StaticResource Gray500}" VerticalOptions="End" Margin="0" Padding="0" 
+                        MinimumHeightRequest="32" MinimumWidthRequest="32" Command="{Binding ClearSelectedUserCommand}" IsVisible="False">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource x}" Color="{StaticResource Gray500}" Size="12" />
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+            <!-- Search Users -->
+            <SearchBar x:Name="an8Searchbar" Placeholder="Search By AN8" SearchCommand="{Binding SearchAn8Command}" Style="{StaticResource SemiTransparent}" 
+                      SearchCommandParameter="{Binding Text, Source={x:Reference an8Searchbar}}" />
+        </VerticalStackLayout>
+
+        <!-- Employee Name | Employee Number -->
+        <Label Grid.Row="{OnIdiom Default=0, Phone=1, Watch=1}" Grid.Column="0" Grid.ColumnSpan="{OnIdiom Default=2, Phone=0, Watch=0}" 
+               Style="{StaticResource h3}">
+            <Label.Text>
+                <MultiBinding StringFormat="{}{0} {1}  #{2}">
+                    <Binding Path="SelectedEmployee.FirstName" FallbackValue="No user selected" />
+                    <Binding Path="SelectedEmployee.LastName" />
+                    <Binding Path="SelectedEmployee.EmployeeNumber" FallbackValue="000000" />
+                </MultiBinding>
+            </Label.Text>
+        </Label>
+
+        <!-- Barcode -->
+        <Entry Grid.Row="{OnIdiom Default=1, Phone=2, Watch=2}" Grid.Column="0" Placeholder="Barcode" 
+               MaxLength="30" Style="{StaticResource SemiTransparent}" WidthRequest="300" HorizontalOptions="Fill" Text="{Binding EmployeeBarcode}" />
+
+        <!-- User Name -->
+        <Entry Grid.Row="{OnIdiom Default=1, Phone=3, Watch=3}" Grid.Column="{OnIdiom Default=1, Phone=0, Watch=0}" Placeholder="User Name" 
+               MaxLength="20" Style="{StaticResource SemiTransparent}" WidthRequest="300" Text="{Binding SelectedEmployee.UserName}" />
+
+        <!-- Job Types Steps -->
+        <Grid Grid.Row="{OnIdiom Default=2, Phone=4, Watch=4}" Grid.Column="0" 
+              Grid.ColumnSpan="{OnIdiom Default=2, Phone=0, Watch=0}" Grid.RowSpan="{OnIdiom Default=4, Phone=0, Watch=0}" 
+              HorizontalOptions="Fill" VerticalOptions="Fill" Padding="0" Margin="0" ColumnSpacing="10"
+              ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,*">
+            <!-- New Job Types -->
+            <Border Grid.Column="0" Grid.Row="0" Margin="5,5" Padding="15,10" StrokeShape="RoundRectangle 5" VerticalOptions="Center" HorizontalOptions="End" 
+                    Stroke="{StaticResource SystemOrange}" IsVisible="{Binding IsAddingNewJobTypeStep}">
+                <controls:EntryPicker Text="Select Job Type" VerticalOptions="Center" HorizontalOptions="End" Title="Select Job Type" 
+                                      x:Name="newJobTypePicker" OnSelectedCommand="{Binding NewJobTypeSelectedCommand}"
+                                      ItemsSource="{Binding JobTypes}" SearchBarStyle="{StaticResource SemiTransparent}" DisplayMember="Description">
+                    <controls:EntryPicker.DropDownItemTemplate>
+                        <DataTemplate x:DataType="models:JobTypeDto">
+                            <ViewCell>
+                                <Border Margin="5,5" StrokeShape="RoundRectangle 5">
+                                    <Label Padding="10,5">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} ({1})">
+                                                <Binding Path="Description" />
+                                                <Binding Path="JdeId" Converter="{converters:TrimStringConverter}" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                                <Setter Property="TextColor" Value="{StaticResource SystemOrangeDark}" />
+                                                <Setter Property="FontAttributes" Value="None" />
+                                                <Setter Property="HorizontalTextAlignment" Value="Start" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True" TargetType="Label">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                                <Binding Path="."/>
+                                                                <Binding Path="SelectedItem" Source="{x:Reference newJobTypePicker}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource SystemOrange}" />
+                                                        <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                        <Setter Property="FontAttributes" Value="Bold" />
+                                                        <Setter Property="HorizontalTextAlignment" Value="Center" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Value="False" TargetType="Label">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                                <Binding Path="."/>
+                                                                <Binding Path="SelectedItem" Source="{x:Reference newJobTypePicker}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        <Setter Property="TextColor" Value="{StaticResource SystemOrangeDark}" />
+                                                        <Setter Property="FontAttributes" Value="None" />
+                                                        <Setter Property="HorizontalTextAlignment" Value="Start" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroupList>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="Stroke" Value="{StaticResource SystemOrangeDark}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState x:Name="PointerOver">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Gray900}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateGroupList>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Border>
+                            </ViewCell>
+                        </DataTemplate>
+                    </controls:EntryPicker.DropDownItemTemplate>
+                </controls:EntryPicker>
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="Disabled"/>
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource SystemOrange}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SystemTeal}, Dark={StaticResource SystemBlue}}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </VisualStateManager.VisualStateGroups>
+            </Border>
+            <!-- New Job Steps -->
+            <Border Grid.Column="1" Grid.Row="0" Margin="5,5" Padding="15,10" StrokeShape="RoundRectangle 5" VerticalOptions="Center" HorizontalOptions="End" 
+                    Stroke="{StaticResource SystemOrange}" IsVisible="{Binding IsAddingNewJobTypeStep}">
+                <controls:EntryPicker Text="Select Job Step" VerticalOptions="Center" HorizontalOptions="End" Title="Select Job Step" 
+                                      x:Name="newJobStepPicker" OnSelectedCommand="{Binding NewJobStepSelectedCommand}"
+                                      ItemsSource="{Binding JobSteps}" SearchBarStyle="{StaticResource SemiTransparent}" DisplayMember="Description">   
+                    <controls:EntryPicker.DropDownItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <ViewCell>
+                                <Border Margin="5,5" StrokeShape="RoundRectangle 5">
+                                    <Label Padding="10,5">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} ({1})">
+                                                <Binding Path="Description" />
+                                                <Binding Path="JdeId" Converter="{converters:TrimStringConverter}" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                        <Label.Style>
+                                            <Style TargetType="Label">
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                                <Setter Property="TextColor" Value="{StaticResource SystemOrangeDark}" />
+                                                <Setter Property="FontAttributes" Value="None" />
+                                                <Setter Property="HorizontalTextAlignment" Value="Start" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True" TargetType="Label">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                                <Binding Path="."/>
+                                                                <Binding Path="SelectedItem" Source="{x:Reference newJobStepPicker}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource SystemOrange}" />
+                                                        <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                        <Setter Property="FontAttributes" Value="Bold" />
+                                                        <Setter Property="HorizontalTextAlignment" Value="Center" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Value="False" TargetType="Label">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                                <Binding Path="."/>
+                                                                <Binding Path="SelectedItem" Source="{x:Reference newJobStepPicker}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        <Setter Property="TextColor" Value="{StaticResource SystemOrangeDark}" />
+                                                        <Setter Property="FontAttributes" Value="None" />
+                                                        <Setter Property="HorizontalTextAlignment" Value="Start" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroupList>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="Stroke" Value="{StaticResource SystemOrangeDark}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState x:Name="PointerOver">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Gray900}" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateGroupList>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Border>
+                            </ViewCell>
+                        </DataTemplate>
+                    </controls:EntryPicker.DropDownItemTemplate>
+                </controls:EntryPicker>
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="Disabled"/>
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource SystemOrange}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SystemTeal}, Dark={StaticResource SystemBlue}}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </VisualStateManager.VisualStateGroups>
+            </Border>
+            <!-- New Job Types / Steps Buttons -->
+            <HorizontalStackLayout Grid.Column="2" Grid.Row="0" IsVisible="False">
+                <Button Text="Add Job Type" VerticalOptions="Center" IsVisible="{Binding IsNotAddingNewJobTypeStep}" Command="{Binding AddNewJobTypeStepRequestedCommand}">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Plus}"/>
+                    </Button.ImageSource>
+                </Button>
+
+                <HorizontalStackLayout VerticalOptions="Fill" IsVisible="{Binding IsAddingNewJobTypeStep}">
+                    <Button VerticalOptions="Center" HorizontalOptions="Center" Margin="0,0,5,0"
+                        Style="{StaticResource DangerButton}" Command="{Binding AddNewJobTypeStepCanceledCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Xmark}"/>
+                        </Button.ImageSource>
+                    </Button>
+                    <Button VerticalOptions="Center" HorizontalOptions="Center" Margin="0,0,20,0"
+                        Style="{StaticResource SuccessButton}" Command="{Binding AddNewJobTypeStepConfirmedCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Check}"/>
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+            <!-- Currently Attached Job Type/Steps -->
+            <CollectionView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" VerticalOptions="Fill" HorizontalOptions="Fill" Header="Job Types and Steps"
+                      ItemsSource="{Binding SelectedUserJobTypeSteps}" IsVisible="False">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:JobTypeStepToUserDto">
+                        <StackLayout HorizontalOptions="Fill">
+                            <Border Padding="15" Margin="0,0,0,10" StrokeShape="RoundRectangle 5" HorizontalOptions="Fill" 
+                                    Stroke="{StaticResource SystemOrange}">
+                                <Grid ColumnDefinitions="3*,3*,*" HorizontalOptions="Fill" ColumnSpacing="20" Margin="0" Padding="0">
+                                    <!-- Job Type -->
+                                    <Border Grid.Column="0" Grid.Row="0" VerticalOptions="Center" HorizontalOptions="Start" Padding="10">
+                                        <Label VerticalOptions="Center" HorizontalOptions="Fill">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0}  ({1})">
+                                                    <Binding Path="JobType.Description" />
+                                                    <Binding Path="JobType.JdeId" Converter="{converters:TrimStringConverter}" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </Border>
+                                    <!-- Job Step -->
+                                    <Border Grid.Column="1" Grid.Row="0" VerticalOptions="Center" HorizontalOptions="Start" Padding="10">
+                                        <Label VerticalOptions="Center" HorizontalOptions="Fill">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0}  ({1})">
+                                                    <Binding Path="JobStep.Description" />
+                                                    <Binding Path="JobStep.JdeId" Converter="{converters:TrimStringConverter}" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </Border>
+                                    <!-- Active State -->
+                                    <!--<Switch  Grid.Column="2" Grid.Row="0" IsToggled="{Binding IsActive}"/>-->
+                                    <controls:ToggleSwitch Grid.Column="2" Grid.Row="0" IsChecked="{Binding IsActive, Mode=TwoWay}" 
+                                                           WidthRequest="100" OnText=" Active " OffText="Inactive" 
+                                                           OnTextColor="{StaticResource White}" OffTextColor="{StaticResource Gray300}"
+                                                           OnThumbColor="{StaticResource SystemGreen}" OffThumbColor="{StaticResource Gray300}"
+                                                           OnTrackColor="{StaticResource White}" OffTrackColor="{StaticResource Gray500}"/>
+                                </Grid>
+                            </Border>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+        
+        <!-- Save Button -->
+        <Button Grid.Row="5" Grid.Column="{OnIdiom Default=2, Phone=0, Watch=0}" 
+                Text="Save" WidthRequest="150" Opacity=".95" HorizontalOptions="End" Margin="0" Command="{Binding SaveCommand}">
+            <Button.ImageSource>
+                <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource FloppyDisk}"/>
+            </Button.ImageSource>
+        </Button>
+        
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="6" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+</shared:BaseContentView>

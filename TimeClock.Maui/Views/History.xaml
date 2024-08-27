@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.History"
+             xmlns:controls="clr-namespace:TimeClock.Maui.Controls"
+             xmlns:children="clr-namespace:TimeClock.Maui.Views.HistorySection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             BackgroundColor="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}"
+             NavigationPage.HasBackButton="False">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+    <ContentPage.BindingContext>
+        <local:HistoryViewModel x:Name="ViewModel"/>
+    </ContentPage.BindingContext>
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!-- Company Logo -->
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Source="{Static root:CommonValues.CompanyLogoUrl}" ZIndex="1" Opacity=".20" HorizontalOptions="Fill" />
+        <HorizontalStackLayout Grid.Column="0" Grid.Row="0" VerticalOptions="End" Padding="20" HorizontalOptions="Center" ZIndex="2">
+            <Label Text="Showing history for" Margin="0" Padding="0" VerticalOptions="Center" HorizontalOptions="Center" Style="{StaticResource h2}" />
+            <DatePicker x:Name="DateFilterPicker" Margin="0" VerticalOptions="Center" HorizontalOptions="Center" Style="{StaticResource h2datepicker}" />
+        </HorizontalStackLayout>
+        <HorizontalStackLayout HorizontalOptions="EndAndExpand" VerticalOptions="End">
+            <Button WidthRequest="150" VerticalOptions="Center" HorizontalOptions="End" Margin="0,0,20,10"
+                            Style="{StaticResource DangerButton}" Text="Close" Command="{Binding CloseCommand}">
+                    <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Xmark}"/>
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+        <controls:TabControl Grid.Column="0" Grid.Row="1" SelectedTabName="Punches" VerticalOptions="Fill" Padding="10" ZIndex="2">
+            <controls:TabControl.Tabs>
+                <controls:TabControlItem Title="Punches">
+                    <children:PunchHistory FilterDate="{Binding Source={x:Reference DateFilterPicker}, Path=Date}" 
+                                           UserId="{Binding Source={x:Reference ViewModel}, Path=UserId, Mode=TwoWay}" 
+                                           PunchType="{Binding Source={x:Reference ViewModel}, Path=PunchType, Mode=OneWay}" />
+                </controls:TabControlItem>
+                <controls:TabControlItem Title="Equipment">
+                    <children:EquipmentHistory FilterDate="{Binding Source={x:Reference DateFilterPicker}, Path=Date}" 
+                                               UserId="{Binding Source={x:Reference ViewModel}, Path=UserId, Mode=TwoWay}" 
+                                               PunchType="{Binding Source={x:Reference ViewModel}, Path=PunchType, Mode=OneWay}" />
+                </controls:TabControlItem>
+            </controls:TabControl.Tabs>
+        </controls:TabControl>
+    </Grid>    
+</shared:BaseContentPage>

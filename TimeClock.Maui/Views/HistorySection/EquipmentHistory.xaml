@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.HistorySection.EquipmentHistory"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.HistorySection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             x:DataType="local:EquipmentHistoryViewModel"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             x:Name="this"
+             VerticalOptions="Fill" HorizontalOptions="Fill">
+
+    <Grid ColumnDefinitions="*" RowDefinitions="*" HorizontalOptions="Fill" VerticalOptions="Fill">
+        <RefreshView Grid.Column="0" Grid.Row="0" Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}" ZIndex="1">
+            <CollectionView BackgroundColor="Transparent" ItemSizingStrategy="MeasureAllItems" VerticalOptions="Fill"
+                            ItemsSource="{Binding Equipments}" SelectionMode="None" 
+                            RemainingItemsThreshold="1" RemainingItemsThresholdReachedCommand="{Binding DelayLoadMoreCommand}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="12" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label HorizontalOptions="Center" Text="No equipment found"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:EquipmentsToUserDto">
+                        <Border Padding="{Binding BorderPadding, Source={x:Reference this}}" Margin="0">
+                            <Grid ColumnSpacing="{Binding GridColumnSpacing, Source={x:Reference this}}" Margin="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <!-- Equipment Number -->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Name -->
+                                    <ColumnDefinition Width="*"/>
+                                    <!-- Time Range -->
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Equipment Number -->
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Equipment.Sku}" Style="{StaticResource h4}"  HorizontalOptions="Center" VerticalOptions="Center" />
+                                <!-- Name -->
+                                <Label Grid.Row="0" Grid.Column="1" IsVisible="{Binding Source={x:RelativeSource AncestorType={x:Type local:EquipmentHistoryViewModel}}, Path=IsNotMobileDevice}" 
+                                    Text="{Binding Equipment.Name}" Style="{StaticResource h4}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <!-- Time Range -->
+                                <FlexLayout Grid.Row="0" Grid.Column="2" Wrap="Wrap">
+                                    <Label Text="From:" Margin="0" />
+                                    <Label Text="{Binding LinkedOnEffective, StringFormat='{0:t}'}" Style="{StaticResource h4}" Margin="0" VerticalTextAlignment="Center" />
+                                    <Label Text="To:" Margin="0" />
+                                    <Label Text="{Binding UnLinkedOnEffective, StringFormat='{0:t}'}" Style="{StaticResource h4}" Margin="0" VerticalTextAlignment="Center" />
+                                    <Label Text="{Binding LinkedDurationTextEffective, StringFormat='  {0}'}" Style="{StaticResource h4}" Margin="0" VerticalTextAlignment="Center" />
+                                </FlexLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+    
+</shared:BaseContentView>

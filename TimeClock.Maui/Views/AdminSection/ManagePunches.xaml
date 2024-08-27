@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.AdminSection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:localviews="clr-namespace:TimeClock.Maui.Views.AdminSection"
+             x:DataType="local:ManagePunchesViewModel"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             x:Name="this"
+             x:Class="TimeClock.Maui.Views.AdminSection.ManagePunches"
+             Padding="0, 0, 0, 0">
+    <shared:BaseContentView.Resources>
+        <x:String x:Key="AddUserText">Add User</x:String>
+        <x:String x:Key="SelectUserText">Select User and Date</x:String>
+        <x:String x:Key="EndEntriesText">End Of Entries</x:String>
+        <x:String x:Key="NoEntriesText">No entries found</x:String>
+        <x:String x:Key="NoPunchesText">No punches found</x:String>
+    </shared:BaseContentView.Resources>
+    <Grid HorizontalOptions="Fill" Padding="0" Margin="0" VerticalOptions="Fill">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <HorizontalStackLayout Grid.Column="0" Grid.Row="0" HorizontalOptions="Start" Padding="10" BackgroundColor="{StaticResource SystemGray6Dark}">
+            <HorizontalStackLayout HorizontalOptions="Start">
+                <Picker Title="{StaticResource SelectUserText}" Style="{StaticResource WhitePicker}"  
+                        ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" ItemDisplayBinding="{Binding FullNameOr}"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="End" Padding="10">
+                <DatePicker Date="{Binding FilterDate}" />
+            </HorizontalStackLayout>
+        </HorizontalStackLayout>
+        <Label Grid.Column="1" Grid.Row="0" Margin="5,0,0,0" Text="{Binding UserInstructions}" VerticalOptions="End" HorizontalOptions="Start"/>
+        <HorizontalStackLayout Grid.Column="2" Grid.Row="0" HorizontalOptions="End" IsVisible="False">
+            <Button Text="{StaticResource AddUserText}" VerticalOptions="Center" HorizontalOptions="End" Margin="0" FontSize="16" 
+                        MinimumHeightRequest="-1" MinimumWidthRequest="-1" Padding="10,5" FontAttributes="Bold" Command="{Binding AddUserCommand}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" Glyph="{StaticResource UserPlus}" Size="18"/>
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+        <!-- Primary Collection View - bottom margin was 60 / weekly view -->
+        <CollectionView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" VerticalOptions="Fill" HorizontalOptions="Fill" 
+                        ItemsSource="{Binding ActionsForDays}" Margin="0,0,0,60" x:Name="PrimaryCollectionView">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.EmptyView>
+                <StackLayout Padding="12" VerticalOptions="Fill" HorizontalOptions="Fill">
+                    <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{StaticResource NoPunchesText}" />
+                </StackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="local:UserActionsForDay">
+                    <!-- Daily View -->
+                    <Border Padding="0" Margin="0, 10, 0, 0" VerticalOptions="Fill" MinimumWidthRequest="180">
+                        <Grid Padding="10,0" Margin="0" HorizontalOptions="Fill" VerticalOptions="Fill">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding DayOfWeek}" HorizontalOptions="Center" />
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding Date, StringFormat='{0:MM/dd}'}" HorizontalOptions="Center" />
+                            <BoxView Grid.Row="2" Grid.Column="0" BackgroundColor="white" HeightRequest="2" HorizontalOptions="FillAndExpand" Margin="0, 5, 0, 5" />
+                            <Button Grid.Row="3" Grid.Column="0" Text="Add" FontSize="16" Padding="10,5" HorizontalOptions="Fill" Command="{Binding AddPunchCommand}" 
+                                    MinimumHeightRequest="-1" MinimumWidthRequest="-1" IsEnabled="{Binding IsEditable}" />
+                            <!-- Seconday Collection Views -->
+                            <CollectionView Grid.Row="4" Grid.Column="0" VerticalOptions="Fill" HorizontalOptions="Fill" ItemsSource="{Binding Items}">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.EmptyView>
+                                    <VerticalStackLayout Padding="0" VerticalOptions="FillAndExpand" MinimumHeightRequest="50" HorizontalOptions="Fill">
+                                        <Label HorizontalOptions="Center" Text="{StaticResource NoEntriesText}" />
+                                    </VerticalStackLayout>
+                                </CollectionView.EmptyView>
+                                <CollectionView.Header>
+                                    <HorizontalStackLayout IsVisible="{Binding ItemsCount, Converter={converters:IsGreaterThanZeroConverter}}" HorizontalOptions="Center">
+                                        <Label Text="{Binding ItemsCount, StringFormat='{0:0 Total Entries}'}" HorizontalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="local:UserActionsForDayItem">
+                                        <!-- Indivudual items -->
+                                        <Border Style="{StaticResource ButtonBorder}" Padding="0" HorizontalOptions="Center" BackgroundColor="{StaticResource Gray900}">
+                                            <HorizontalStackLayout Padding="5,0" HorizontalOptions="Center">
+                                                <Button Text="{Binding EffectiveTime}" HorizontalOptions="FillAndExpand" BackgroundColor="Transparent" IsVisible="{Binding IsEquipment}" 
+                                                        Command="{Binding EditEntryCommand}" IsEnabled="{Binding Path=IsEditable, Source={RelativeSource AncestorType={x:Type local:UserActionsForDay}}}">
+                                                    <Button.ImageSource>
+                                                        <FontImageSource Size="16" FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" Glyph="{StaticResource TruckMonster}"/>
+                                                    </Button.ImageSource>
+                                                </Button>
+                                                <Button Text="{Binding EffectiveTime}" HorizontalOptions="FillAndExpand" BackgroundColor="Transparent" IsVisible="{Binding IsPunch}" 
+                                                        Command="{Binding EditEntryCommand}" IsEnabled="{Binding Path=IsEditable, Source={RelativeSource AncestorType={x:Type local:UserActionsForDay}}}">
+                                                    <Button.ImageSource>
+                                                        <FontImageSource Size="16" FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" Glyph="{StaticResource User}"/>
+                                                    </Button.ImageSource>
+                                                </Button>
+                                                <Label Text="{Binding StableStatus}" VerticalOptions="Center" TextColor="{StaticResource Gray400}" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                                <CollectionView.Footer>
+                                    <HorizontalStackLayout IsVisible="{Binding ItemsCount, Converter={converters:IsGreaterThanZeroConverter}}" HorizontalOptions="Center"
+                                            Padding="0,0,0,10">
+                                        <Label Text="{StaticResource EndEntriesText}" HorizontalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </CollectionView.Footer>
+                            </CollectionView>
+                        </Grid>
+
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <DataTrigger Value="True" TargetType="Border">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{converters:AreValuesEqualConverter FalseValue=False, TrueValue=True}">
+                                                <Binding Path="Date.Date"/>
+                                                <Binding Path="Date" Source="{x:Static sys:DateTime.Now}"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Stroke" Value="{StaticResource SystemOrange}" />
+                                        <Setter Property="StrokeThickness" Value="2" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Grid.ColumnSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+</shared:BaseContentView>

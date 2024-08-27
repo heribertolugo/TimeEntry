@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.AdminSection"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:viewmodel="local:EditEntryViewModel"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:dtos="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             x:DataType="local:EditEntryViewModel"
+             x:Class="TimeClock.Maui.Views.AdminSection.EditEntryPopup"
+             Color="{AppThemeBinding 
+                    Dark={StaticResource WindowBackgroundColorDark}, 
+                    Light={StaticResource WindowBackgroundColor}}" 
+            CanBeDismissedByTappingOutsideOfPopup="False">
+    <toolkit:Popup.BindingContext>
+        <local:EditEntryViewModel x:Name="ViewModel"/>
+    </toolkit:Popup.BindingContext>
+
+    <toolkit:Popup.Resources>
+        
+    </toolkit:Popup.Resources>
+
+    <Grid WidthRequest="500" HeightRequest="500" Padding="20" ColumnDefinitions="*">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <!-- Header -->
+        <Label Grid.Column="0" Grid.Row="0" Text="{Binding Item.CurrentActionDescription, TargetNullValue='Select new entry type', FallbackValue='Select new entry type'}" 
+               Padding="0" Style="{StaticResource h3}" HorizontalOptions="Center" />
+        <BoxView Grid.Column="0" Grid.Row="1" Color="White" HeightRequest="2" Margin="5, 5, 5, 10" HorizontalOptions="Fill" />
+
+        <!-- Employee name / entry date -->
+        <FlexLayout Grid.Column="0" Grid.Row="2" HorizontalOptions="Fill" Direction="Row" JustifyContent="SpaceBetween">
+            <Label>
+                <Label.Text>
+                    <MultiBinding StringFormat="{}{0} {1}">
+                        <Binding Path="Item.User.FirstName" />
+                        <Binding Path="Item.User.LastName" />
+                    </MultiBinding>
+                </Label.Text>
+            </Label>
+
+            <Label Text="{Binding Item.Date, StringFormat='{0:MM/dd/yy hh:mm tt}'}" />
+        </FlexLayout>
+        
+        <!-- Create New -->
+        <HorizontalStackLayout Grid.Column="0" Grid.Row="3" RadioButtonGroup.GroupName="newtype" RadioButtonGroup.SelectedValue="{Binding SelectedNewEntryType}" 
+                               IsVisible="{Binding IsCreating}">
+            <RadioButton Content="{Binding Converter={converters:EnumToStringConverter}, Source={x:Static local:NewEntryType.PunchEntry}}" 
+                         GroupName="newtype" Value="{x:Static local:NewEntryType.PunchEntry}" />
+            <!--IsChecked="{Binding SelectedNewEntryType, Converter={converters:EnumToBoolConverter}, ConverterParameter={x:Static local:NewEntryType.PunchEntry}}" />-->
+            <RadioButton Content="{Binding Converter={converters:EnumToStringConverter}, Source={x:Static local:NewEntryType.EquipmentEntry}}" 
+                         GroupName="newtype" Value="{x:Static local:NewEntryType.EquipmentEntry}" Margin="20,0" />
+            <!--IsChecked="{Binding SelectedNewEntryType, Converter={converters:EnumToBoolConverter}, ConverterParameter={x:Static local:NewEntryType.EquipmentEntry}}" />-->
+        </HorizontalStackLayout>
+        
+        <!-- User who created entry / type of entry -->
+        <FlexLayout HorizontalOptions="Fill" Direction="Row" JustifyContent="SpaceBetween" Grid.Column="0" Grid.Row="4">
+            <ContentView>
+                <FlexLayout Direction="Row">
+                    <Label Text="Entered By:"/>
+                    <Label>
+                        <Label.Text>
+                            <MultiBinding StringFormat="{} {0} {1}">
+                                <Binding Path="Editor.FirstName" />
+                                <Binding Path="Editor.LastName" />
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </FlexLayout>
+            </ContentView>
+            <ContentView IsVisible="{Binding IsNotCreating}">
+                <FlexLayout Direction="Row">
+                    <Label Text="Entry type:"/>
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text=" "/>
+                                <Span Text="{Binding Item.PunchType, Converter={converters:EnumToStringConverter}}"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </FlexLayout>
+            </ContentView>
+
+            <!-- Geo Location? -->
+            <!-- Location/Department? -->
+        </FlexLayout>
+
+        <!-- Editable Fields -->
+        <VerticalStackLayout Grid.Column="0" Grid.Row="5" HorizontalOptions="Fill" Padding="5" Margin="0,20,0,0" IsVisible="{Binding IsNotCreating}"
+                              BackgroundColor="{StaticResource SystemGray6Dark}">
+            <FlexLayout HorizontalOptions="Fill" Direction="Row" JustifyContent="SpaceBetween">
+                <TimePicker Time="{Binding Item.TimeSpan}" TextColor="Black" VerticalOptions="End">
+                    <TimePicker.BackgroundColor>
+                        <Binding Path="Item.IsTimeChanged">
+                            <Binding.Converter>
+                                <converters:BoolToColorConverter FalseValue="White" TrueValue="#08d308"/>
+                            </Binding.Converter>
+                        </Binding>
+                    </TimePicker.BackgroundColor>
+                </TimePicker>
+                <HorizontalStackLayout HorizontalOptions="End" IsVisible="{Binding Item.IsNotNewItem}">
+                    <Label Text="Voided" VerticalOptions="Center" Margin="0" />
+                    <CheckBox VerticalOptions="Start" Color="Red" Margin="0" IsChecked="{Binding Item.IsVoided}" />
+                </HorizontalStackLayout>
+            </FlexLayout>
+            <!-- Equipments -->
+            <FlexLayout HorizontalOptions="Fill" Direction="Row" IsVisible="{Binding Item.IsEquipment, FallbackValue=false}">
+                <Picker Title="Attach Equipment" ItemsSource="{Binding Item.Equipments}" SelectedItem="{Binding Item.Equipment, Mode=TwoWay}" 
+                        ItemDisplayBinding="{Binding Sku}" Style="{StaticResource WhitePicker}">
+                    <Picker.BackgroundColor>
+                        <Binding Path="Item.IsEquipmentChanged">
+                            <Binding.Converter>
+                                <converters:BoolToColorConverter FalseValue="White" TrueValue="#08d308"/>
+                            </Binding.Converter>
+                        </Binding>
+                    </Picker.BackgroundColor>
+                </Picker>
+            </FlexLayout>
+        </VerticalStackLayout>
+
+        <Label Grid.Column="0" Grid.Row="6" Text="{Binding Item.StableStatus, StringFormat='Currently creating a punch {0}'}" HorizontalOptions="Center" VerticalOptions="Center" />
+
+        <!-- Job Type Steps -->
+        <Picker Grid.Column="0" Grid.Row="6" HorizontalOptions="Fill" Title="Select Job Type Step" ItemsSource="{Binding User.JobTypeSteps}" 
+                Style="{StaticResource WhitePicker}" Margin="0,10,0,10"
+                IsVisible="{Binding User.JobTypeSteps, Converter={converters:IsGreaterThanZeroConverter}}">
+            <Picker.ItemDisplayBinding>
+                <MultiBinding StringFormat="{}{0}({1}) | {2}({3})">
+                    <Binding Path="JobType.Description" />
+                    <Binding Path="JobType.JdeId" />
+                    <Binding Path="JobStep.Description" />
+                    <Binding Path="JobStep.JdeId" />
+                </MultiBinding>
+            </Picker.ItemDisplayBinding>
+        </Picker>
+
+        <!-- Punch Histories -->
+        <CollectionView Grid.Column="0" Grid.Row="7" HorizontalOptions="Fill" ItemsSource="{Binding Item.PunchEntriesHistories}">
+            <CollectionView.IsVisible>
+                <MultiBinding Converter="{converters:AllTrueMultiConverter}">
+                    <Binding Path="Item.IsPunch" />
+                    <Binding Path="Item.IsNotNew" />
+                    <Binding Path="Item.PunchEntriesHistories" Converter="{converters:IsGreaterThanZeroConverter}" />
+                </MultiBinding>
+            </CollectionView.IsVisible>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dtos:PunchEntryDto">
+                    
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Action Buttons -->
+        <HorizontalStackLayout Grid.Column="0" Grid.Row="8" HorizontalOptions="End">
+            <Button Text="Save" HorizontalOptions="Center" Margin="10" Clicked="OnSave_Clicked" IsVisible="{Binding Item.IsDirty}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaRegularFont}" Glyph="{StaticResource FloppyDisk}"/>
+                </Button.ImageSource>
+            </Button>
+            <Button Text="Cancel" HorizontalOptions="Center" Margin="10" Style="{StaticResource DangerButton}" 
+                    Clicked="OnCancel_Clicked">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Xmark}"/>
+                </Button.ImageSource>
+            </Button>
+        </HorizontalStackLayout>
+    </Grid>
+</toolkit:Popup>

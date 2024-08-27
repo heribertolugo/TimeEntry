@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeClock.Maui.Views.AdminSection.PunchSummary"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels.AdminSection"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:local="clr-namespace:TimeClock.Maui.Views.AdminSection"
+             x:DataType="viewmodels:PunchSummaryViewModel"
+                        HorizontalOptions="Fill" VerticalOptions="Fill" Margin="0,0,0,40">
+
+    <!-- Templates for punch summaries -->
+    <shared:BaseContentView.Resources>
+        <DataTemplate x:Key="PunchedIn">
+            
+        </DataTemplate>
+        <DataTemplate x:Key="PunchedOut">
+
+        </DataTemplate>
+        <Thickness x:Key="LocalMobileBorder">
+            <Thickness.Left>10</Thickness.Left>
+            <Thickness.Top>0</Thickness.Top>
+            <Thickness.Right>10</Thickness.Right>
+            <Thickness.Bottom>0</Thickness.Bottom>
+        </Thickness>
+        <Thickness x:Key="LocalDefaultBorder">
+            <Thickness.Left>40</Thickness.Left>
+            <Thickness.Top>0</Thickness.Top>
+            <Thickness.Right>40</Thickness.Right>
+            <Thickness.Bottom>0</Thickness.Bottom>
+        </Thickness>
+        <Thickness x:Key="LocalSubFontMargin">
+            <Thickness.Left>0</Thickness.Left>
+            <Thickness.Top>0</Thickness.Top>
+            <Thickness.Right>0</Thickness.Right>
+            <Thickness.Bottom>0</Thickness.Bottom>
+        </Thickness>
+    </shared:BaseContentView.Resources>
+
+    <!-- Layout -->
+    <ScrollView>
+    <Grid Margin="0" HorizontalOptions="Fill" VerticalOptions="Fill">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Page Content -->
+        <VerticalStackLayout Grid.Row="0" Grid.Column="0" ZIndex="2" HorizontalOptions="Fill" VerticalOptions="Fill">
+            <!-- Header -->
+            <HorizontalStackLayout HorizontalOptions="Fill">
+                <!-- current as of [TIME] -->
+                <Label>
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Current as of: "/>
+                            <Span Text="{Binding LastFetchedAt, StringFormat='{0:MM/dd/yyyy hh:mm tt}'}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </HorizontalStackLayout>
+            <!-- Punch Summary -->
+            <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}" HorizontalOptions="Fill" VerticalOptions="Fill">
+                <CollectionView BackgroundColor="Transparent" ItemSizingStrategy="MeasureAllItems" HorizontalOptions="Fill" VerticalOptions="Fill"
+                            ItemsSource="{Binding ActivitySummaries}" RemainingItemsThreshold="1"
+                            RemainingItemsThresholdReachedCommand="{Binding DelayLoadMoreCommand}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="12" VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label HorizontalOptions="Center" Text="No punches found"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:ActivitySummary">
+                            <Border Padding="{OnIdiom Phone={StaticResource LocalMobileBorder}, Watch={StaticResource LocalMobileBorder}, Default={StaticResource LocalDefaultBorder}}" Margin="0">
+                                <ContentView>
+                                    <VerticalStackLayout>
+                                        <VerticalStackLayout.Opacity>
+                                            <Binding Path="IsPunchedIn">
+                                                <Binding.Converter>
+                                                    <converters:BoolToDoubleConverter FalseValue="0.5" TrueValue="1" />
+                                                </Binding.Converter>
+                                            </Binding>
+                                        </VerticalStackLayout.Opacity>
+                                        <HorizontalStackLayout>
+                                            <!-- User name -->
+                                            <Label Text="{Binding UserFullName}" Style="{StaticResource h4}" Margin="0,21.28,10.14,10.14" />
+                                            <Label Text="-" Style="{StaticResource h4}" Margin="0,21.28,0,10.14" />
+                                            <!-- Time punched in/out -->
+                                            <FlexLayout BindableLayout.ItemsSource="{Binding PunchSummaries}" Direction="Row">
+                                                <BindableLayout.ItemTemplate>
+                                                    <DataTemplate x:DataType="viewmodels:ActivitySummaryPunch">
+                                                        <HorizontalStackLayout>
+                                                            <Label Text="{Binding Duration}" Style="{StaticResource h4}" Margin="10.14,21.28,0,10.14" Padding="0,0,20,0" />
+                                                            <Label Text="{Binding Total}" Style="{StaticResource h4}" Margin="10.14,21.28,0,10.14" Padding="0,0,20,0" />
+                                                        </HorizontalStackLayout>
+                                                    </DataTemplate>
+                                                </BindableLayout.ItemTemplate>
+                                            </FlexLayout>
+                                        </HorizontalStackLayout>
+                                            <Border IsVisible="{Binding HasEquipment}" StrokeDashArray="5,5" StrokeDashOffset="2" HeightRequest="2" HorizontalOptions="Fill">
+                                            </Border>
+                                        <HorizontalStackLayout IsVisible="{Binding HasEquipment}" VerticalOptions="Start">
+                                                <!-- truck icon -->
+                                            <Image Margin="0,10.14,0,21.28" VerticalOptions="Start">
+                                                <Image.Source>
+                                                    <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Color="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" Size="16" Glyph="{StaticResource TruckMonster}"/>
+                                                </Image.Source>
+                                            </Image>
+                                            <!-- Equipment sku & name -->
+                                            <VerticalStackLayout Margin="21.28,10.14,0,21.28" BindableLayout.ItemsSource="{Binding EquipmentSummaries}"
+                                                                 HorizontalOptions="Start" VerticalOptions="Start">
+                                                    <BindableLayout.ItemTemplate>
+                                                        <DataTemplate x:DataType="viewmodels:ActivitySummaryEquipment">
+                                                            <HorizontalStackLayout Spacing="25" HorizontalOptions="Start">
+                                                                <Label Text="{Binding Sku}" Style="{StaticResource h4}" Margin="0" Padding="0,0,0,0" />
+                                                                <Label Text="{Binding Name}" Style="{StaticResource h4}" Margin="0" Padding="0,0,0,0" />
+                                                                <Label Text="{Binding Duration}" Style="{StaticResource h4}" Margin="0" Padding="0,0,0,0" />
+                                                            </HorizontalStackLayout>
+                                                        </DataTemplate>
+                                                    </BindableLayout.ItemTemplate>
+                                            </VerticalStackLayout>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </ContentView>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+            <!-- Footer -->
+            <HorizontalStackLayout HorizontalOptions="Fill">
+
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+    </ScrollView>
+</shared:BaseContentView>

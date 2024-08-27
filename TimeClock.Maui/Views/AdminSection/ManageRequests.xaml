@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<shared:BaseContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TimeClock.Maui.ViewModels.AdminSection"
+             xmlns:root="clr-namespace:TimeClock.Maui"
+             xmlns:shared="clr-namespace:TimeClock.Maui.Views.Shared"
+             xmlns:views="clr-namespace:TimeClock.Maui.Views"
+             xmlns:localviews="clr-namespace:TimeClock.Maui.Views.AdminSection"
+             x:DataType="local:ManageRequestsViewModel"
+             xmlns:viewmodels="clr-namespace:TimeClock.Maui.ViewModels"
+             xmlns:models="clr-namespace:TimeClock.Core.Models.EntityDtos;assembly=TimeClock.Core"
+             xmlns:converters="clr-namespace:TimeClock.Maui.Converters"
+             x:Name="this"
+             x:Class="TimeClock.Maui.Views.AdminSection.ManageRequests">
+    <shared:BaseContentView.Resources>
+        <x:String x:Key="NoRequestsText">No requests found</x:String>
+        <x:String x:Key="CorrectionText">Requested correction</x:String>
+        <ResourceDictionary>
+            <toolkit:TextCaseConverter x:Key="TextCaseConverter" Type="Upper" />
+        </ResourceDictionary>
+    </shared:BaseContentView.Resources>
+    <Grid HorizontalOptions="Fill" VerticalOptions="Fill" Margin="0" Padding="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <RefreshView Grid.Column="0" Grid.Row="0" Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView VerticalOptions="Fill" HorizontalOptions="Fill" ItemsSource="{Binding PunchRequestItems}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="12" VerticalOptions="Fill" HorizontalOptions="Fill">
+                        <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{StaticResource NoRequestsText}" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:PunchRequestItem">
+                        <Border Padding="0" Margin="0" HorizontalOptions="Fill" MinimumWidthRequest="180" StrokeShape="RoundRectangle 10,10,10,10">
+                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="*" Margin="0" Padding="20,10">
+                                <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" ColumnSpacing="20" RowSpacing="10" VerticalOptions="Start" Margin="0" Padding="0" MinimumWidthRequest="250" MaximumWidthRequest="300">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Column="0" Grid.Row="0" Text="{Binding User.FullNameOr}" HorizontalOptions="Start" HorizontalTextAlignment="Start" Style="{StaticResource h4}" Padding="0" Margin="0" />
+                                    <Label Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding User.EmployeeNumber}" HorizontalOptions="Start" HorizontalTextAlignment="Start" Style="{StaticResource h5}" FontAttributes="None" Padding="0" Margin="0" />
+                                    <Label Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="Start" Style="{StaticResource h5}" FontAttributes="None" Padding="0" Margin="0" 
+                                           Text="{Binding OriginalEntry.EffectiveDateTime, StringFormat='Original: {0:g}', TargetNullValue='New request', FallbackValue='New request'}" />
+                                    <Label Grid.Column="1" Grid.Row="1" Text="{Binding StablePunchStatus}" HorizontalOptions="Center" FontAttributes="Bold" IsVisible="False" />
+                                </Grid>
+                                <VerticalStackLayout Grid.Column="1" Grid.Row="0" HorizontalOptions="Start" VerticalOptions="Start">
+                                    <Label Text="{StaticResource CorrectionText}" Style="{StaticResource h5}" FontAttributes="None" TextColor="{StaticResource SystemOrange}" Padding="0" Margin="0" HorizontalOptions="Center" />
+                                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                                        <Label Text="{Binding CorrectedEntry.EffectiveDateTime, StringFormat='{0:g}'}" Style="{StaticResource h4}" TextColor="{StaticResource SystemOrange}" Padding="0" Margin="0" HorizontalOptions="Center" />
+                                        <Label Text="{Binding PunchStatus}" Style="{StaticResource h4}" TextColor="{StaticResource White}" Padding="0" Margin="0" HorizontalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                                        <Border Stroke="{StaticResource Gray600}" BackgroundColor="{StaticResource Gray600}" StrokeThickness="1" StrokeShape="RoundRectangle 20" 
+                                            Padding="8,5" HorizontalOptions="Center">
+                                            <Label Text="{Binding JobType.JobTypeJdeId, StringFormat='J T : {0}', TargetNullValue='J T : 0', FallbackValue='J T : 0'}" 
+                                                   Style="{StaticResource h6}" FontAttributes="Bold" TextColor="{StaticResource SystemOrange}" Padding="0" Margin="0" />
+                                        </Border>
+                                        <Border Stroke="{StaticResource Gray600}" BackgroundColor="{StaticResource Gray600}" StrokeThickness="1" StrokeShape="RoundRectangle 20" 
+                                            Padding="8,5" HorizontalOptions="Center">
+                                            <Label Text="{Binding JobType.JobStepJdeId, StringFormat='J S : {0}', TargetNullValue='J S : 0', FallbackValue='J S : 0'}" 
+                                                   Style="{StaticResource h6}" FontAttributes="Bold" TextColor="{StaticResource SystemOrange}" Padding="0" Margin="0" />
+                                        </Border>
+                                        <Border Stroke="{StaticResource Gray600}" BackgroundColor="{StaticResource Gray600}" StrokeThickness="1" StrokeShape="RoundRectangle 20" 
+                                                Padding="8,5" HorizontalOptions="Center">
+                                            <Label Text="{Binding PunchStatus, StringFormat='P T : {0}', TargetNullValue='P T : 0', FallbackValue='P T : 0'}" 
+                                                   Style="{StaticResource h6}" FontAttributes="Bold" TextColor="{StaticResource SystemOrange}" Padding="0" Margin="0" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Center">
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Button Text="Accept" FontSize="15" Padding="10,5"
+                                        Opacity=".95" HorizontalOptions="Start" Margin="0" Command="{Binding AcceptCommand}">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Check}" Size="18"/>
+                                            </Button.ImageSource>
+                                        </Button>
+                                        <Button Text="Reject" Style="{StaticResource DangerButton}" FontSize="15" Padding="10,5"
+                                        Opacity=".95" HorizontalOptions="End" Margin="0" Command="{Binding RejectCommand}">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="{Static root:CommonValues.FaSolidFont}" Glyph="{StaticResource Ban}" Size="15"/>
+                                            </Button.ImageSource>
+                                        </Button>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <ActivityIndicator Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" />
+    </Grid>
+</shared:BaseContentView>
