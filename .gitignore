@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/TimeClock.Data/JDE
+/TimeClock.Data/App.dev.config
+/TimeClock.JdeSync/appsettings.Development.json
+/TimeClock.API/appsettings.Development.json
