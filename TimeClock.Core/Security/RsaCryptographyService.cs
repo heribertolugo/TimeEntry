@@ -270,12 +270,16 @@ internal sealed class RsaCryptographyService : IDisposable, ICryptographyService
             this.RsaProvider = new RSACryptoServiceProvider(RsaCryptographyService.KeySize, parameters);
         }
         else
+        {
             this.RsaProvider = new RSACryptoServiceProvider(RsaCryptographyService.KeySize);
+#warning need to save to local file on non-Windows OS
+        }
 
         this.Id = id;
         this.PublicKey = Convert.ToBase64String(this.RsaProvider.ExportRSAPublicKey());
         this.PrivateKey = Convert.ToBase64String(this.RsaProvider.ExportRSAPrivateKey());
 
+#warning SecureStorage does NOT work on Linux/MacOS
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             SecureStorage.SetAsync(id, this.PrivateKey).GetAwaiter().GetResult();
     }
