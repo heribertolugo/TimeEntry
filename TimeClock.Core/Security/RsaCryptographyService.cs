@@ -215,6 +215,20 @@ internal sealed class RsaCryptographyService : IDisposable, ICryptographyService
         return true;
     }
 
+    public static ICryptographyService ImportFromString(string data)
+    {
+        RSACryptoServiceProvider rsa = new(RsaCryptographyService.KeySize);
+        rsa.ImportFromPem(data);
+        RsaCryptographyService service = new(Convert.ToBase64String(rsa.ExportRSAPublicKey()), Convert.ToBase64String(rsa.ExportRSAPrivateKey()));
+        rsa.Dispose();
+        return service;
+    }
+
+    public string GetExportString()
+    {
+        return this.RsaProvider.ToXmlString(true);
+    }
+
     #region Private Helpers
     private bool GetIfIdExists(string id)
     {

@@ -193,6 +193,16 @@ internal sealed class EciesCryptographyService : IDisposable, ICryptographyServi
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             SecureStorage.SetAsync(id, this.PrivateKey).GetAwaiter().GetResult();
     }
+
+    public static ICryptographyService ImportFromString(string data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string GetExportString()
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 
     private void Dispose(bool disposing)

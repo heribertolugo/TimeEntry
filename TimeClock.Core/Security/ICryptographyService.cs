@@ -27,6 +27,10 @@ namespace TimeClock.Core.Security
     ///         <description>
     ///             <see cref="TryGet(string, out ICryptographyService?)"/>
     ///         </description>
+    ///     </item> <item>
+    ///         <description>
+    ///             <see cref="ImportFromString(string)"/>
+    ///         </description>
     ///     </item>
     /// </list>
     /// Not doing so will throw <see href="https://learn.microsoft.com/en-us/dotnet/api/system.notimplementedexception?view=net-8.0">NotImplementedException</see> when the methods are called.
@@ -39,6 +43,7 @@ namespace TimeClock.Core.Security
 
         string Decrypt(string value);
         string Encrypt(string value);
+        string GetExportString();
         public static virtual string Encrypt(string value, out string publicKey, out string privateKey)
         {
             throw new NotImplementedException();
@@ -52,6 +57,10 @@ namespace TimeClock.Core.Security
             throw new NotImplementedException();
         }
         public static virtual bool TryGet(string id, out ICryptographyService? cryptography)
+        {
+            throw new NotImplementedException();
+        }
+        public static virtual ICryptographyService? ImportFromString(string data)
         {
             throw new NotImplementedException();
         }
